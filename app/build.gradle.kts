@@ -57,4 +57,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    // Implementación que se encarga de que el contenido sea responsive
+    implementation ("androidx.constraintlayout:constraintlayout:2.1.4")
 }

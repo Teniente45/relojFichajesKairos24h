@@ -7,6 +7,40 @@
     android:padding="16dp"
     android:gravity="center">
 
+    <!-- Imagen encima de la calculadora -->
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="464dp"
+        android:layout_height="283dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:contentDescription="@string/descripcion_logo"
+        android:src="@drawable/logo" />
+
+    <!-- Botones de "Salida" y "Entrada" debajo del logo -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp">
+
+        <!-- Botón Salida (izquierda) -->
+        <Button
+            android:id="@+id/btnSalida"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Salida" />
+
+        <!-- Botón Entrada (derecha) -->
+        <Button
+            android:id="@+id/btnEntrada"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Entrada" />
+    </LinearLayout>
+
     <!-- Campo de texto solo editable con los botones -->
     <EditText
         android:id="@+id/campoTexto"
