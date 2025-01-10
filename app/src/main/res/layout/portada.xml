@@ -1,154 +1,181 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:gravity="center">
+    android:padding="0dp"
+    android:gravity="top">
 
     <!-- Imagen encima de la calculadora -->
-    <ImageView
-        android:id="@+id/logo"
-        android:layout_width="464dp"
-        android:layout_height="283dp"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:contentDescription="@string/descripcion_logo"
-        android:src="@drawable/logo" />
-
-    <!-- Botones de "Salida" y "Entrada" debajo del logo -->
     <LinearLayout
+        android:id="@+id/containerLogo"
+        android:layout_width="match_parent"
+        android:layout_height="280dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="0dp"
+        android:paddingBottom="30px">
+
+        <ImageView
+            android:id="@+id/logo"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:contentDescription="@string/descripcion_logo"
+            android:src="@drawable/logo" />
+    </LinearLayout>
+
+
+    <!-- Botones Salida y Entrada -->
+    <LinearLayout
+        style="?android:attr/buttonBarStyle"
+        android:id="@+id/buttonSalidaYEntrada"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="16dp">
+        android:layout_marginTop="16dp"
+        android:paddingBottom="30px">
 
-        <!-- Botón Salida (izquierda) -->
-        <Button
-            android:id="@+id/btnSalida"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Salida" />
+        <LinearLayout
+            android:layout_width="400dp"
+            android:layout_height="100dp">
 
-        <!-- Botón Entrada (derecha) -->
+            <Button
+                android:id="@+id/btnSalida"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="match_parent"
+                android:gravity="center"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="100dp"
+                android:layout_weight="1"
+                android:background="@drawable/salida"
+                tools:ignore="SpeakableTextPresentCheck" />
+        </LinearLayout>
         <Button
             android:id="@+id/btnEntrada"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="219dp"
+            android:layout_height="80dp"
             android:layout_weight="1"
-            android:text="Entrada" />
+            android:background="@drawable/entrada"
+            tools:ignore="SpeakableTextPresentCheck" />
     </LinearLayout>
 
-    <!-- Campo de texto solo editable con los botones -->
-    <EditText
-        android:id="@+id/campoTexto"
+
+        <!-- Campo de texto y teclado numérico -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Ingrese números"
-        android:gravity="center"
-        android:inputType="none"
-        android:focusable="false"
-        android:background="@android:drawable/editbox_background_normal"
-        android:padding="12dp"
-        android:textSize="18sp" />
+        android:layout_height="271dp"
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <!-- Teclado numérico -->
-    <GridLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:columnCount="3"
-        android:rowCount="4"
-        android:layout_marginTop="16dp"
-        android:alignmentMode="alignMargins">
-
-        <!-- Botones del 1 al 9 -->
-        <Button
-            android:id="@+id/btn1"
-            android:layout_width="0dp"
+        <EditText
+            android:id="@+id/campoTexto"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="1"
-            android:layout_columnWeight="1" />
+            android:background="@android:drawable/editbox_background_normal"
+            android:focusable="false"
+            android:gravity="center"
+            android:hint="Ingrese números"
+            android:inputType="none"
+            android:padding="12dp"
+            android:textSize="18sp" />
 
-        <Button
-            android:id="@+id/btn2"
-            android:layout_width="0dp"
+        <GridLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="2"
-            android:layout_columnWeight="1" />
+            android:layout_marginTop="16dp"
+            android:alignmentMode="alignMargins"
+            android:columnCount="3"
+            android:rowCount="4">
 
-        <Button
-            android:id="@+id/btn3"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="3"
-            android:layout_columnWeight="1" />
+            <!-- Botones del 1 al 9 -->
+            <Button
+                android:id="@+id/btn1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:text="1" />
 
-        <Button
-            android:id="@+id/btn4"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="4"
-            android:layout_columnWeight="1" />
+            <Button
+                android:id="@+id/btn2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:text="2" />
 
-        <Button
-            android:id="@+id/btn5"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="5"
-            android:layout_columnWeight="1" />
+            <Button
+                android:id="@+id/btn3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:text="3" />
 
-        <Button
-            android:id="@+id/btn6"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="6"
-            android:layout_columnWeight="1" />
+            <Button
+                android:id="@+id/btn4"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:text="4" />
 
-        <Button
-            android:id="@+id/btn7"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="7"
-            android:layout_columnWeight="1" />
+            <Button
+                android:id="@+id/btn5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:text="5" />
 
-        <Button
-            android:id="@+id/btn8"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="8"
-            android:layout_columnWeight="1" />
+            <Button
+                android:id="@+id/btn6"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:text="6" />
 
-        <Button
-            android:id="@+id/btn9"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="9"
-            android:layout_columnWeight="1" />
+            <Button
+                android:id="@+id/btn7"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:text="7" />
 
-        <!-- Botón Borrar -->
-        <Button
-            android:id="@+id/btnBorrarTeclado"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Borrar"
-            android:layout_columnWeight="1" />
+            <Button
+                android:id="@+id/btn8"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:text="8" />
 
-        <!-- Botón 0 -->
-        <Button
-            android:id="@+id/btn0"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="0"
-            android:layout_columnWeight="1" />
+            <Button
+                android:id="@+id/btn9"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:text="9" />
 
-        <!-- Botón OK -->
-        <Button
-            android:id="@+id/btnOk"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="OK"
-            android:layout_columnWeight="1" />
-    </GridLayout>
+            <Button
+                android:id="@+id/btnBorrarTeclado"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:text="Borrar" />
+
+            <Button
+                android:id="@+id/btn0"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:text="0" />
+
+            <Button
+                android:id="@+id/btnOk"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:text="OK" />
+        </GridLayout>
+    </LinearLayout>
+
 </LinearLayout>
