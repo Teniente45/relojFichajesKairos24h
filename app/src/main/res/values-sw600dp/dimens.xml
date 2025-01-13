@@ -1,0 +1,12 @@
+<resources>
+    <!-- Dimensiones ajustadas para dispositivos con pantallas más grandes -->
+    <dimen name="padding_left_right">24dp</dimen>
+    <dimen name="padding_top">32dp</dimen>
+    <dimen name="padding_bottom">32dp</dimen>
+    <dimen name="padding_general">16dp</dimen>
+    <dimen name="button_height">70dp</dimen>
+    <dimen name="button_text_size">24sp</dimen>
+    <dimen name="margin_general">8dp</dimen>
+    <dimen name="button_borrar_text_size">24sp</dimen>
+    <dimen name="button_borrar_height">70dp</dimen>
+</resources>

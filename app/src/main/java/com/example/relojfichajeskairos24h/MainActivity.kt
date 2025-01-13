@@ -31,9 +31,6 @@ class MainActivity : AppCompatActivity() {
         // Botón Borrar
         val btnBorrar: Button = findViewById(R.id.btnBorrarTeclado)
 
-        // Botón OK
-        val btnOk: Button = findViewById(R.id.btnOk)
-
         // Acción para los botones numéricos
         botonesNumericos.forEach { boton ->
             boton.setOnClickListener {
@@ -48,12 +45,6 @@ class MainActivity : AppCompatActivity() {
             if (textoActual.isNotEmpty()) {
                 campoTexto.setText(textoActual.substring(0, textoActual.length - 1))
             }
-        }
-
-        // Acción para el botón OK
-        btnOk.setOnClickListener {
-            // Aquí puedes manejar lo que debe ocurrir al presionar OK
-            // Por ejemplo, podrías mostrar un mensaje o realizar una operación
         }
     }
 }
