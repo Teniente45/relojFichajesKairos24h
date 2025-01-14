@@ -18,8 +18,8 @@
     <string name="btn_0">0</string>
 
     <!-- Otros botones -->
-    <string name="btn_borrar">BORRAR</string>
-    <string name="btn_entrada">Boton para fichar la entrada</string>
-    <string name="btn_salida">"Boton para fichar la salida "</string>
+    <string name="btn_borrar">LIMPIAR</string>
+    <string name="btn_entrada">Entrada</string>
+    <string name="btn_salida">"Salida "</string>
     <string name="campo_texto">Campo de texto para introducir código de empleado\n</string>
 </resources>
