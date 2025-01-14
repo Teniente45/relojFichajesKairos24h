@@ -1,6 +1,6 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
     <solid android:color="#447094" /> <!-- Color de fondo del botón -->
-    <corners android:radius="100dp" /> <!-- Botón completamente redondo -->
+    <corners android:radius="200dp" /> <!-- Botón completamente redondo -->
     <size
         android:width="64dp"
         android:height="64dp" /> <!-- Tamaño fijo para los botones redondos -->
