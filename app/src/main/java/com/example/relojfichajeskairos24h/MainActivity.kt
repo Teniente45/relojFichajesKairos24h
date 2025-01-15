@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             if (campoTexto.text.isEmpty()) {
                 mostrarMensajeError(cuadroEmergente, "¡Por favor, ingresa datos antes de continuar!")
             } else {
-                hablarTexto("¡Buenos días!")
+                hablarTexto("¡Entrada correcta!")
             }
             aplicarAnimacion(btnEntrada) // Animación para el botón Entrada
             reiniciarTemporizador(handler) // Reinicia el temporizador al interactuar
@@ -78,7 +78,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             if (campoTexto.text.isEmpty()) {
                 mostrarMensajeError(cuadroEmergente, "¡Por favor, ingresa datos antes de continuar!")
             } else {
-                hablarTexto("¡Buen trabajo!")
+                hablarTexto("¡Salida correcta!")
             }
             aplicarAnimacion(btnSalida) // Animación para el botón Salida
             reiniciarTemporizador(handler) // Reinicia el temporizador al interactuar
