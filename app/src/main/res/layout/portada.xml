@@ -104,6 +104,19 @@
                 android:padding="12dp"
                 android:textSize="18sp" />
 
+            <TextView
+                android:id="@+id/cuadroEmergente"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@drawable/background_cuadro"
+                android:padding="16dp"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:visibility="gone"
+                android:gravity="center" />
+
+
             <Space
                 android:layout_width="16dp"
                 android:layout_height="10dp" />
@@ -270,6 +283,7 @@
                     android:layout_margin="@dimen/layoutMarginButtonsNumericos"
                     android:contentDescription="@string/btn_borrar"
                     android:text="@string/btn_borrar"
+                    android:textColor="@android:color/white"
                     android:background="@drawable/radius_button"
                     android:textSize="@dimen/buttonNumerico"
                     tools:ignore="SpUsage" />
