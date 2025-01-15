@@ -5,6 +5,7 @@ import android.animation.ObjectAnimator
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.speech.tts.TextToSpeech
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -12,25 +13,30 @@ import androidx.appcompat.app.AppCompatActivity
 import java.text.SimpleDateFormat
 import java.util.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
+
+    private lateinit var tts: TextToSpeech
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.portada)
 
+        // Inicializa TextToSpeech
+        tts = TextToSpeech(this, this)
+
         // Referencias
         val campoTexto: EditText = findViewById(R.id.campoTexto)
         val botonesNumericos = listOf(
             findViewById<Button>(R.id.btn0),
-            findViewById(R.id.btn1),
-            findViewById(R.id.btn2),
-            findViewById(R.id.btn3),
-            findViewById(R.id.btn4),
-            findViewById(R.id.btn5),
-            findViewById(R.id.btn6),
-            findViewById(R.id.btn7),
-            findViewById(R.id.btn8),
-            findViewById(R.id.btn9)
+            findViewById<Button>(R.id.btn1),
+            findViewById<Button>(R.id.btn2),
+            findViewById<Button>(R.id.btn3),
+            findViewById<Button>(R.id.btn4),
+            findViewById<Button>(R.id.btn5),
+            findViewById<Button>(R.id.btn6),
+            findViewById<Button>(R.id.btn7),
+            findViewById<Button>(R.id.btn8),
+            findViewById<Button>(R.id.btn9)
         )
         val btnBorrar: Button = findViewById(R.id.btnBorrarTeclado)
         val btnEntrada: Button = findViewById(R.id.btn_entrada)
@@ -56,11 +62,7 @@ class MainActivity : AppCompatActivity() {
             if (campoTexto.text.isEmpty()) {
                 mostrarMensajeError(cuadroEmergente, "¡Por favor, ingresa datos antes de continuar!")
             } else {
-                val horaActual = obtenerHoraActual()
-                mostrarCuadroEmergente(
-                    cuadroEmergente,
-                    "¡Hola usuario, has entrado a las $horaActual! ¡Que pases un buen día!"
-                )
+                hablarTexto("¡Buenos días!")
             }
         }
 
@@ -69,11 +71,7 @@ class MainActivity : AppCompatActivity() {
             if (campoTexto.text.isEmpty()) {
                 mostrarMensajeError(cuadroEmergente, "¡Por favor, ingresa datos antes de continuar!")
             } else {
-                val horaActual = obtenerHoraActual()
-                mostrarCuadroEmergente(
-                    cuadroEmergente,
-                    "¡Buen trabajo usuario, has salido a las $horaActual! ¡A descansar!"
-                )
+                hablarTexto("¡Buen trabajo!")
             }
         }
     }
@@ -89,43 +87,6 @@ class MainActivity : AppCompatActivity() {
         val animacionSet = AnimatorSet()
         animacionSet.playTogether(animacionEscalaX, animacionEscalaY)
         animacionSet.start()
-    }
-
-    // Método para mostrar el cuadro emergente con animación
-    private fun mostrarCuadroEmergente(cuadro: TextView, mensaje: String) {
-        cuadro.text = mensaje
-        cuadro.alpha = 0f
-        cuadro.scaleX = 0f
-        cuadro.scaleY = 0f
-        cuadro.visibility = TextView.VISIBLE
-
-        val animacionMostrarX = ObjectAnimator.ofFloat(cuadro, "scaleX", 0f, 1f)
-        val animacionMostrarY = ObjectAnimator.ofFloat(cuadro, "scaleY", 0f, 1f)
-        val animacionTransparencia = ObjectAnimator.ofFloat(cuadro, "alpha", 0f, 1f)
-
-        val animacionSetMostrar = AnimatorSet()
-        animacionSetMostrar.playTogether(animacionMostrarX, animacionMostrarY, animacionTransparencia)
-        animacionSetMostrar.duration = 400
-
-        animacionSetMostrar.start()
-
-        // Ocultar el cuadro después de 4 segundos
-        Handler(Looper.getMainLooper()).postDelayed({
-            val animacionOcultarX = ObjectAnimator.ofFloat(cuadro, "scaleX", 1f, 0f)
-            val animacionOcultarY = ObjectAnimator.ofFloat(cuadro, "scaleY", 1f, 0f)
-            val animacionTransparenciaOcultar = ObjectAnimator.ofFloat(cuadro, "alpha", 1f, 0f)
-
-            val animacionSetOcultar = AnimatorSet()
-            animacionSetOcultar.playTogether(animacionOcultarX, animacionOcultarY, animacionTransparenciaOcultar)
-            animacionSetOcultar.duration = 400
-
-            animacionSetOcultar.start()
-            animacionSetOcultar.addListener(object : android.animation.AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: android.animation.Animator) {
-                    cuadro.visibility = TextView.GONE
-                }
-            })
-        }, 4000)
     }
 
     // Método para mostrar un mensaje de error temporalmente
@@ -145,5 +106,32 @@ class MainActivity : AppCompatActivity() {
     private fun obtenerHoraActual(): String {
         val formato = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
         return formato.format(Date())
+    }
+
+    // Método para convertir texto a voz
+    private fun hablarTexto(texto: String) {
+        if (::tts.isInitialized) {
+            tts.speak(texto, TextToSpeech.QUEUE_FLUSH, null, null)
+        }
+    }
+
+    // Implementación del OnInitListener
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            val idioma = Locale.getDefault()
+            val result = tts.setLanguage(idioma)
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                // Aquí puedes manejar el caso en que el idioma no esté soportado
+            }
+        }
+    }
+
+    // Liberar recursos de TextToSpeech
+    override fun onDestroy() {
+        if (::tts.isInitialized) {
+            tts.stop()
+            tts.shutdown()
+        }
+        super.onDestroy()
     }
 }
