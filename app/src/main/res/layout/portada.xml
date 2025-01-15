@@ -33,77 +33,55 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/buttonSalidaYEntrada"
+            android:id="@+id/buttonEntradaYSalida"
             style="?android:attr/buttonBarStyle"
             android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:baselineAligned="false"
-            android:orientation="horizontal">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal"
+            android:gravity="center">
 
+            <!-- Botón de Entrada - A la Izquierda -->
             <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="start"
-                android:paddingStart="16dp"
-                tools:ignore="RtlSymmetry"
-                android:orientation="vertical">
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent">
 
                 <Button
-                    android:id="@+id/btnEntrada"
+                    android:id="@+id/btn_entrada"
                     style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="@dimen/button_widthSalidaEntrada"
-                    android:layout_height="120dp"
-                    android:background="@drawable/entrada"
+                    android:layout_width="@dimen/layoutWidthEntradaYSalida"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/round_button"
                     android:contentDescription="@string/btn_entrada"
-                    android:textColor="#000000" />
-
-                <TextView
-                    android:id="@+id/tvEntrada"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingStart="40dp"
-                    android:layout_marginTop="4dp"
-                    android:fontFamily="sans-serif"
+                    android:gravity="center"
                     android:text="@string/btn_entrada"
-                    android:textColor="#4F8ABA"
-                    android:textSize="16sp"
-                    android:visibility="visible" />
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/buttonNumerico"
+                    android:layout_marginEnd="25dp"
+                    tools:ignore="SpUsage" />
             </LinearLayout>
 
-
+            <!-- Botón de Salida - A la Derecha -->
             <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="end"
-                android:paddingEnd="16dp"
-                tools:ignore="RtlSymmetry">
-
-            <Button
-                android:id="@+id/btnSalida"
-                style="?android:attr/buttonBarButtonStyle"
-                android:layout_width="@dimen/button_widthSalidaEntrada"
-                android:layout_height="120dp"
-                android:background="@drawable/salida"
-                android:contentDescription="@string/btn_salida"
-                android:gravity="center" />
-
-            <TextView
-                android:id="@+id/tvSalida"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:paddingEnd="40dp"
-                android:layout_marginTop="8dp"
-                android:fontFamily="sans-serif"
-                android:text="@string/btn_salida"
-                android:textColor="#4F8ABA"
-                android:textSize="16sp" />
+                android:layout_height="match_parent">
+
+                <Button
+                    android:id="@+id/btn_salida"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="@dimen/layoutWidthEntradaYSalida"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/round_button"
+                    android:contentDescription="@string/btn_salida"
+                    android:gravity="center"
+                    android:text="@string/btn_salida"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/buttonNumerico"
+                    android:layout_marginStart="25dp"
+                    tools:ignore="SpUsage" />
+            </LinearLayout>
         </LinearLayout>
 
-        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -147,7 +125,7 @@
                     android:layout_height="0dp"
                     android:layout_columnWeight="1"
                     android:layout_rowWeight="1"
-                    android:layout_margin="4dp"
+                    android:layout_margin="@dimen/layoutMarginButtonsNumericos"
                     android:contentDescription="@string/btn_1"
                     android:text="@string/btn_1"
                     android:background="@drawable/round_button"
@@ -161,7 +139,7 @@
                     android:layout_height="0dp"
                     android:layout_columnWeight="1"
                     android:layout_rowWeight="1"
-                    android:layout_margin="4dp"
+                    android:layout_margin="@dimen/layoutMarginButtonsNumericos"
                     android:contentDescription="@string/btn_2"
                     android:text="@string/btn_2"
                     android:background="@drawable/round_button"
@@ -175,7 +153,7 @@
                     android:layout_height="0dp"
                     android:layout_columnWeight="1"
                     android:layout_rowWeight="1"
-                    android:layout_margin="4dp"
+                    android:layout_margin="@dimen/layoutMarginButtonsNumericos"
                     android:contentDescription="@string/btn_3"
                     android:text="@string/btn_3"
                     android:background="@drawable/round_button"
@@ -189,7 +167,7 @@
                     android:layout_height="0dp"
                     android:layout_columnWeight="1"
                     android:layout_rowWeight="1"
-                    android:layout_margin="4dp"
+                    android:layout_margin="@dimen/layoutMarginButtonsNumericos"
                     android:contentDescription="@string/btn_4"
                     android:text="@string/btn_4"
                     android:background="@drawable/round_button"
@@ -203,7 +181,7 @@
                     android:layout_height="0dp"
                     android:layout_columnWeight="1"
                     android:layout_rowWeight="1"
-                    android:layout_margin="4dp"
+                    android:layout_margin="@dimen/layoutMarginButtonsNumericos"
                     android:contentDescription="@string/btn_5"
                     android:text="@string/btn_5"
                     android:background="@drawable/round_button"
@@ -217,7 +195,7 @@
                     android:layout_height="0dp"
                     android:layout_columnWeight="1"
                     android:layout_rowWeight="1"
-                    android:layout_margin="4dp"
+                    android:layout_margin="@dimen/layoutMarginButtonsNumericos"
                     android:contentDescription="@string/btn_6"
                     android:text="@string/btn_6"
                     android:background="@drawable/round_button"
@@ -231,7 +209,7 @@
                     android:layout_height="0dp"
                     android:layout_columnWeight="1"
                     android:layout_rowWeight="1"
-                    android:layout_margin="4dp"
+                    android:layout_margin="@dimen/layoutMarginButtonsNumericos"
                     android:contentDescription="@string/btn_7"
                     android:text="@string/btn_7"
                     android:background="@drawable/round_button"
@@ -245,7 +223,7 @@
                     android:layout_height="0dp"
                     android:layout_columnWeight="1"
                     android:layout_rowWeight="1"
-                    android:layout_margin="4dp"
+                    android:layout_margin="@dimen/layoutMarginButtonsNumericos"
                     android:contentDescription="@string/btn_8"
                     android:text="@string/btn_8"
                     android:background="@drawable/round_button"
@@ -259,7 +237,7 @@
                     android:layout_height="0dp"
                     android:layout_columnWeight="1"
                     android:layout_rowWeight="1"
-                    android:layout_margin="4dp"
+                    android:layout_margin="@dimen/layoutMarginButtonsNumericos"
                     android:contentDescription="@string/btn_9"
                     android:text="@string/btn_9"
                     android:background="@drawable/round_button"
@@ -273,7 +251,7 @@
                     android:layout_height="0dp"
                     android:layout_columnWeight="1"
                     android:layout_rowWeight="1"
-                    android:layout_margin="4dp"
+                    android:layout_margin="@dimen/layoutMarginButtonsNumericos"
                     android:contentDescription="@string/btn_0"
                     android:text="@string/btn_0"
                     android:background="@drawable/round_button"
@@ -289,7 +267,7 @@
                     android:layout_columnSpan="2"
                     android:layout_columnWeight="2"
                     android:layout_rowWeight="1"
-                    android:layout_margin="4dp"
+                    android:layout_margin="@dimen/layoutMarginButtonsNumericos"
                     android:contentDescription="@string/btn_borrar"
                     android:text="@string/btn_borrar"
                     android:background="@drawable/radius_button"
