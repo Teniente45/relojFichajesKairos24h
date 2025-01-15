@@ -16,6 +16,8 @@ import java.util.*
 class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private lateinit var tts: TextToSpeech
+    private val handler = Handler(Looper.getMainLooper())
+    private val tiempoInactividad: Long = 5000 // 5 segundos
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,15 +30,15 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         val campoTexto: EditText = findViewById(R.id.campoTexto)
         val botonesNumericos = listOf(
             findViewById<Button>(R.id.btn0),
-            findViewById<Button>(R.id.btn1),
-            findViewById<Button>(R.id.btn2),
-            findViewById<Button>(R.id.btn3),
-            findViewById<Button>(R.id.btn4),
-            findViewById<Button>(R.id.btn5),
-            findViewById<Button>(R.id.btn6),
-            findViewById<Button>(R.id.btn7),
-            findViewById<Button>(R.id.btn8),
-            findViewById<Button>(R.id.btn9)
+            findViewById(R.id.btn1),
+            findViewById(R.id.btn2),
+            findViewById(R.id.btn3),
+            findViewById(R.id.btn4),
+            findViewById(R.id.btn5),
+            findViewById(R.id.btn6),
+            findViewById(R.id.btn7),
+            findViewById(R.id.btn8),
+            findViewById(R.id.btn9)
         )
         val btnBorrar: Button = findViewById(R.id.btnBorrarTeclado)
         val btnEntrada: Button = findViewById(R.id.btn_entrada)
@@ -49,12 +51,15 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 val numero = boton.text.toString()
                 campoTexto.append(numero)
                 aplicarAnimacion(boton)
+                reiniciarTemporizador(handler) // Reinicia el temporizador al interactuar
             }
         }
 
         // Acción para el botón Borrar
         btnBorrar.setOnClickListener {
             campoTexto.text.clear()
+            aplicarAnimacion(btnBorrar) // Animación para el botón Borrar
+            reiniciarTemporizador(handler) // Reinicia el temporizador al interactuar
         }
 
         // Acción para el botón Entrada
@@ -64,6 +69,8 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             } else {
                 hablarTexto("¡Buenos días!")
             }
+            aplicarAnimacion(btnEntrada) // Animación para el botón Entrada
+            reiniciarTemporizador(handler) // Reinicia el temporizador al interactuar
         }
 
         // Acción para el botón Salida
@@ -73,6 +80,8 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             } else {
                 hablarTexto("¡Buen trabajo!")
             }
+            aplicarAnimacion(btnSalida) // Animación para el botón Salida
+            reiniciarTemporizador(handler) // Reinicia el temporizador al interactuar
         }
     }
 
@@ -81,7 +90,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         val animacionEscalaX = ObjectAnimator.ofFloat(boton, "scaleX", 1f, 1.2f, 1f)
         val animacionEscalaY = ObjectAnimator.ofFloat(boton, "scaleY", 1f, 1.2f, 1f)
 
-        animacionEscalaX.duration = 400
+        animacionEscalaX.duration = 400 // Duración de 0.4 segundos
         animacionEscalaY.duration = 400
 
         val animacionSet = AnimatorSet()
@@ -133,5 +142,17 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             tts.shutdown()
         }
         super.onDestroy()
+    }
+
+    // Método para reiniciar el temporizador de inactividad
+    private fun reiniciarTemporizador(handler: Handler) {
+        // Elimina cualquier tarea pendiente (si existe)
+        handler.removeCallbacksAndMessages(null)
+
+        // Establece una nueva tarea que vaciará el campo de texto después de 5 segundos
+        handler.postDelayed({
+            val campoTexto: EditText = findViewById(R.id.campoTexto)
+            campoTexto.text.clear()
+        }, tiempoInactividad)
     }
 }
