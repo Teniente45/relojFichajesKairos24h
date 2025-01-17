@@ -58,6 +58,9 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    // Para el Inspector de bases de datos
+    implementation ("androidx.sqlite:sqlite:2.1.0")
+
     // Implementación que se encarga de que el contenido sea responsive
     implementation ("androidx.constraintlayout:constraintlayout:2.1.4")
 }

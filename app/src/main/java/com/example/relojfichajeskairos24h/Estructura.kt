@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.util.Log
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -23,7 +24,7 @@ class EstructuraDB(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
-        // SQL para crear la tabla fictmp
+        Log.d("DB", "onCreate ejecutado") // Asegúrate de que esto se loguea en Logcat.
         val CREATE_TABLE_QUERY = """
         CREATE TABLE IF NOT EXISTS $TABLE_NAME (
             $COLUMN_X_FICTMP INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,26 +38,24 @@ class EstructuraDB(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
     }
 
 
+    fun insertarFichaje(cEmpcppext: String, cTipfic: String) {
+        val db = this.writableDatabase
+        val values = ContentValues().apply {
+            put(COLUMN_C_EMPCPPEXT, cEmpcppext)
+            put(COLUMN_C_TIPFIC, cTipfic)
+            put(COLUMN_F_FICHAJE, obtenerFechaHoraActual())
+            put(COLUMN_L_INFORMADO, "N")
+        }
+        val result = db.insert(TABLE_NAME, null, values)
+        Log.d("DB", "Resultado de inserción: $result")
+        db.close()
+    }
+
+
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
         // Si necesitas actualizar la base de datos (migraciones), puedes hacerlo aquí
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_NAME")
         onCreate(db)
-    }
-
-    // Función para insertar un fichaje
-    fun insertarFichaje(cEmpcppext: String, cTipfic: String) {
-        val db = this.writableDatabase
-
-        val values = ContentValues().apply {
-            put(COLUMN_C_EMPCPPEXT, cEmpcppext)
-            put(COLUMN_C_TIPFIC, cTipfic)
-            put(COLUMN_F_FICHAJE, obtenerFechaHoraActual()) // Obtenemos la fecha y hora actual
-            put(COLUMN_L_INFORMADO, "N") // Valor por defecto
-        }
-
-        // Inserta el registro en la tabla fictmp
-        db.insert(TABLE_NAME, null, values)
-        db.close()
     }
 
     // Función para obtener la fecha y hora actual
