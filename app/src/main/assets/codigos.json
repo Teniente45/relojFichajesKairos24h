@@ -1,0 +1,19 @@
+{
+  "empleados": [
+    {"X_EMPLEADO": 100001, "D_EMPLEADO": "Juan Perez"  },
+    {"X_EMPLEADO": 100002, "D_EMPLEADO": "Ana Gómez"   },
+    {"X_EMPLEADO": 100003, "D_EMPLEADO": "Carlos Ruiz" },
+    {"X_EMPLEADO": 100004, "D_EMPLEADO": "María Torres"},
+    {"X_EMPLEADO": 100005, "D_EMPLEADO": "Luis Sánchez"},
+    {"X_EMPLEADO": 100006, "D_EMPLEADO": "Elena López" },
+    {"X_EMPLEADO": 100007, "D_EMPLEADO": "Pedro Díaz"  },
+    {"X_EMPLEADO": 100008, "D_EMPLEADO": "Laura Martín"},
+    {"X_EMPLEADO": 100009, "D_EMPLEADO": "Jorge Ramos" },
+    {"X_EMPLEADO": 100010, "D_EMPLEADO": "Clara Vega"  },
+    {"X_EMPLEADO": 100011, "D_EMPLEADO": "Iván Herrera"},
+    {"X_EMPLEADO": 100012, "D_EMPLEADO": "Sofía Castro"},
+    {"X_EMPLEADO": 100013, "D_EMPLEADO": "Marta Blanco"},
+    {"X_EMPLEADO": 100014, "D_EMPLEADO": "Andrés Gil"  },
+    {"X_EMPLEADO": 100015, "D_EMPLEADO": "Paula Romero"}
+  ]
+}

@@ -61,6 +61,8 @@ dependencies {
     // Para el Inspector de bases de datos
     implementation ("androidx.sqlite:sqlite:2.1.0")
 
+    implementation ("com.google.code.gson:gson:2.8.8")
+
     // Implementación que se encarga de que el contenido sea responsive
     implementation ("androidx.constraintlayout:constraintlayout:2.1.4")
 }

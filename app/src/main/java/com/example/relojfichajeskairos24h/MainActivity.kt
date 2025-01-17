@@ -1,167 +1,68 @@
 package com.example.relojfichajeskairos24h
 
-import android.animation.AnimatorSet
-import android.animation.ObjectAnimator
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.speech.tts.TextToSpeech
 import android.widget.Button
 import android.widget.EditText
-import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import java.text.SimpleDateFormat
-import java.util.*
+import com.google.gson.Gson
+import java.io.InputStreamReader
 
-class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
-
-    private lateinit var tts: TextToSpeech
-    private val handler = Handler(Looper.getMainLooper())
-    private val tiempoInactividad: Long = 5000 // 5 segundos
+class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.portada)
+        setContentView(R.layout.activity_main)
 
-        // Inicializa TextToSpeech
-        tts = TextToSpeech(this, this)
+        // Inicializa el botón y campo de texto
+        val codigoEditText = findViewById<EditText>(R.id.codigoEditText)
+        val comprobarButton = findViewById<Button>(R.id.comprobarButton)
 
-        // Referencias
-        val campoTexto: EditText = findViewById(R.id.campoTexto)
-        val botonesNumericos = listOf(
-            findViewById<Button>(R.id.btn0),
-            findViewById(R.id.btn1),
-            findViewById(R.id.btn2),
-            findViewById(R.id.btn3),
-            findViewById(R.id.btn4),
-            findViewById(R.id.btn5),
-            findViewById(R.id.btn6),
-            findViewById(R.id.btn7),
-            findViewById(R.id.btn8),
-            findViewById(R.id.btn9)
-        )
-        val btnBorrar: Button = findViewById(R.id.btnBorrarTeclado)
-        val btnEntrada: Button = findViewById(R.id.btn_entrada)
-        val btnSalida: Button = findViewById(R.id.btn_salida)
-        val cuadroEmergente: TextView = findViewById(R.id.cuadroEmergente)
+        // Obtener lista de empleados desde el archivo JSON
+        val empleados = leerEmpleadosDesdeJSON()
 
-        // Acción para los botones numéricos
-        botonesNumericos.forEach { boton ->
-            boton.setOnClickListener {
-                val numero = boton.text.toString()
-                campoTexto.append(numero)
-                aplicarAnimacion(boton)
-                reiniciarTemporizador(handler) // Reinicia el temporizador al interactuar
-            }
-        }
+        // Configurar la acción del botón
+        comprobarButton.setOnClickListener {
+            // Obtener el código ingresado por el usuario
+            val codigoUsuario = codigoEditText.text.toString().toIntOrNull()
 
-        // Acción para el botón Borrar
-        btnBorrar.setOnClickListener {
-            campoTexto.text.clear()
-            aplicarAnimacion(btnBorrar) // Animación para el botón Borrar
-            reiniciarTemporizador(handler) // Reinicia el temporizador al interactuar
-        }
-
-        // Acción para el botón Entrada
-        btnEntrada.setOnClickListener {
-            val codigoUsuario = campoTexto.text.toString()
-            if (codigoUsuario.isEmpty()) {
-                mostrarMensajeError(cuadroEmergente, "¡Por favor, ingresa datos antes de continuar!")
+            if (codigoUsuario != null) {
+                // Verificar si el código existe
+                if (comprobarCodigoEmpleado(codigoUsuario, empleados)) {
+                    // Si el código es válido
+                    Toast.makeText(this, "Código válido", Toast.LENGTH_SHORT).show()
+                } else {
+                    // Si el código es incorrecto
+                    Toast.makeText(this, "Código incorrecto", Toast.LENGTH_SHORT).show()
+                }
             } else {
-                // Crear una instancia de EstructuraDB y llamar a insertarFichaje
-                val dbHelper = EstructuraDB(this)
-                dbHelper.insertarFichaje(codigoUsuario, "ENTRADA") // EN para Entrada
-                hablarTexto("¡Entrada correcta!")
-            }
-            aplicarAnimacion(btnEntrada) // Animación para el botón Entrada
-            reiniciarTemporizador(handler) // Reinicia el temporizador al interactuar
-        }
-
-        // Acción para el botón Salida
-        btnSalida.setOnClickListener {
-            val codigoUsuario = campoTexto.text.toString()
-            if (codigoUsuario.isEmpty()) {
-                mostrarMensajeError(cuadroEmergente, "¡Por favor, ingresa datos antes de continuar!")
-            } else {
-                // Crear una instancia de EstructuraDB y llamar a insertarFichaje
-                val dbHelper = EstructuraDB(this)
-                dbHelper.insertarFichaje(codigoUsuario, "SALIDA") // SA para Salida
-                hablarTexto("¡Salida correcta!")
-            }
-            aplicarAnimacion(btnSalida) // Animación para el botón Salida
-            reiniciarTemporizador(handler) // Reinicia el temporizador al interactuar
-        }
-
-    }
-
-    // Método para aplicar animación de escala a los botones
-    private fun aplicarAnimacion(boton: Button) {
-        val animacionEscalaX = ObjectAnimator.ofFloat(boton, "scaleX", 1f, 1.2f, 1f)
-        val animacionEscalaY = ObjectAnimator.ofFloat(boton, "scaleY", 1f, 1.2f, 1f)
-
-        animacionEscalaX.duration = 400 // Duración de 0.4 segundos
-        animacionEscalaY.duration = 400
-
-        val animacionSet = AnimatorSet()
-        animacionSet.playTogether(animacionEscalaX, animacionEscalaY)
-        animacionSet.start()
-    }
-
-    // Método para mostrar un mensaje de error temporalmente
-    private fun mostrarMensajeError(cuadro: TextView, mensaje: String) {
-        cuadro.text = mensaje
-        cuadro.alpha = 1f
-        cuadro.scaleX = 1f
-        cuadro.scaleY = 1f
-        cuadro.visibility = TextView.VISIBLE
-
-        Handler(Looper.getMainLooper()).postDelayed({
-            cuadro.visibility = TextView.GONE
-        }, 2000)
-    }
-
-    // Método para obtener la hora actual
-    private fun obtenerHoraActual(): String {
-        val formato = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
-        return formato.format(Date())
-    }
-
-    // Método para convertir texto a voz
-    private fun hablarTexto(texto: String) {
-        if (::tts.isInitialized) {
-            tts.speak(texto, TextToSpeech.QUEUE_FLUSH, null, null)
-        }
-    }
-
-    // Implementación del OnInitListener
-    override fun onInit(status: Int) {
-        if (status == TextToSpeech.SUCCESS) {
-            val idioma = Locale.getDefault()
-            val result = tts.setLanguage(idioma)
-            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                // Aquí puedes manejar el caso en que el idioma no esté soportado
+                Toast.makeText(this, "Por favor, ingrese un código válido", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    // Liberar recursos de TextToSpeech
-    override fun onDestroy() {
-        if (::tts.isInitialized) {
-            tts.stop()
-            tts.shutdown()
-        }
-        super.onDestroy()
+    // Función para leer el archivo JSON desde los assets
+    private fun leerEmpleadosDesdeJSON(): List<Empleado> {
+        val inputStream = assets.open("codigos.json")
+        val reader = InputStreamReader(inputStream)
+        val gson = Gson()
+        val empleadosResponse = gson.fromJson(reader, EmpleadosResponse::class.java)
+        return empleadosResponse.empleados
     }
 
-    // Método para reiniciar el temporizador de inactividad
-    private fun reiniciarTemporizador(handler: Handler) {
-        // Elimina cualquier tarea pendiente (si existe)
-        handler.removeCallbacksAndMessages(null)
-
-        // Establece una nueva tarea que vaciará el campo de texto después de 5 segundos
-        handler.postDelayed({
-            val campoTexto: EditText = findViewById(R.id.campoTexto)
-            campoTexto.text.clear()
-        }, tiempoInactividad)
+    // Función para comprobar si el código de empleado es válido
+    private fun comprobarCodigoEmpleado(codigo: Int, empleados: List<Empleado>): Boolean {
+        return empleados.any { it.X_EMPLEADO == codigo }
     }
 }
+
+// Clase de datos para representar un empleado
+data class Empleado(
+    val X_EMPLEADO: Int,
+    val D_EMPLEADO: String
+)
+
+// Clase que mapea la estructura completa de la respuesta JSON
+data class EmpleadosResponse(
+    val empleados: List<Empleado>
+)
