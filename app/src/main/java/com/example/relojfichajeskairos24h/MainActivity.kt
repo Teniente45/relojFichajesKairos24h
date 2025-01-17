@@ -62,27 +62,36 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             reiniciarTemporizador(handler) // Reinicia el temporizador al interactuar
         }
 
-        // Acción para el botón Entrada
+// Acción para el botón Entrada
         btnEntrada.setOnClickListener {
-            if (campoTexto.text.isEmpty()) {
+            val codigoUsuario = campoTexto.text.toString()
+            if (codigoUsuario.isEmpty()) {
                 mostrarMensajeError(cuadroEmergente, "¡Por favor, ingresa datos antes de continuar!")
             } else {
+                // Crear una instancia de EstructuraDB y llamar a insertarFichaje
+                val dbHelper = EstructuraDB(this)
+                dbHelper.insertarFichaje(codigoUsuario, "EN") // EN para Entrada
                 hablarTexto("¡Entrada correcta!")
             }
             aplicarAnimacion(btnEntrada) // Animación para el botón Entrada
             reiniciarTemporizador(handler) // Reinicia el temporizador al interactuar
         }
 
-        // Acción para el botón Salida
+// Acción para el botón Salida
         btnSalida.setOnClickListener {
-            if (campoTexto.text.isEmpty()) {
+            val codigoUsuario = campoTexto.text.toString()
+            if (codigoUsuario.isEmpty()) {
                 mostrarMensajeError(cuadroEmergente, "¡Por favor, ingresa datos antes de continuar!")
             } else {
+                // Crear una instancia de EstructuraDB y llamar a insertarFichaje
+                val dbHelper = EstructuraDB(this)
+                dbHelper.insertarFichaje(codigoUsuario, "SA") // SA para Salida
                 hablarTexto("¡Salida correcta!")
             }
             aplicarAnimacion(btnSalida) // Animación para el botón Salida
             reiniciarTemporizador(handler) // Reinicia el temporizador al interactuar
         }
+
     }
 
     // Método para aplicar animación de escala a los botones
