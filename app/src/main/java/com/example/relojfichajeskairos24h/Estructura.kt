@@ -11,7 +11,7 @@ import java.util.*
 class EstructuraDB(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
     companion object {
-        const val DATABASE_NAME = "fichajes"
+        const val DATABASE_NAME = "fichajestmp"
         const val DATABASE_VERSION = 1
         const val TABLE_NAME = "fictmp"
 

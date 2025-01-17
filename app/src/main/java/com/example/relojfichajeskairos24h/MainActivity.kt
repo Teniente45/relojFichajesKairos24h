@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             reiniciarTemporizador(handler) // Reinicia el temporizador al interactuar
         }
 
-// Acción para el botón Entrada
+        // Acción para el botón Entrada
         btnEntrada.setOnClickListener {
             val codigoUsuario = campoTexto.text.toString()
             if (codigoUsuario.isEmpty()) {
@@ -70,14 +70,14 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             } else {
                 // Crear una instancia de EstructuraDB y llamar a insertarFichaje
                 val dbHelper = EstructuraDB(this)
-                dbHelper.insertarFichaje(codigoUsuario, "EN") // EN para Entrada
+                dbHelper.insertarFichaje(codigoUsuario, "ENTRADA") // EN para Entrada
                 hablarTexto("¡Entrada correcta!")
             }
             aplicarAnimacion(btnEntrada) // Animación para el botón Entrada
             reiniciarTemporizador(handler) // Reinicia el temporizador al interactuar
         }
 
-// Acción para el botón Salida
+        // Acción para el botón Salida
         btnSalida.setOnClickListener {
             val codigoUsuario = campoTexto.text.toString()
             if (codigoUsuario.isEmpty()) {
@@ -85,7 +85,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             } else {
                 // Crear una instancia de EstructuraDB y llamar a insertarFichaje
                 val dbHelper = EstructuraDB(this)
-                dbHelper.insertarFichaje(codigoUsuario, "SA") // SA para Salida
+                dbHelper.insertarFichaje(codigoUsuario, "SALIDA") // SA para Salida
                 hablarTexto("¡Salida correcta!")
             }
             aplicarAnimacion(btnSalida) // Animación para el botón Salida
