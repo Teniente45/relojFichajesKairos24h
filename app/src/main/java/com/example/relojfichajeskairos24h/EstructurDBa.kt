@@ -10,9 +10,8 @@ import java.util.*
 
 class EstructuraDB(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
-    // Nombres de columnas
     companion object {
-        const val DATABASE_NAME = "fichajes-Empresa"
+        const val DATABASE_NAME = "fichajes_empresa.db"
         const val DATABASE_VERSION = 1
         const val TABLE_NAME = "cppfictmp"
 
@@ -39,42 +38,64 @@ class EstructuraDB(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         );
     """
         db?.execSQL(CREATE_TABLE_QUERY)
+        Log.d("DB", "Tabla $TABLE_NAME creada o ya existente")
     }
 
-
-
-    // Método para insertar un fichaje
     fun insertarFichaje(empXEmpleado: String, cDispositivo: String?, cTipfic: String) {
         val db = this.writableDatabase
         val values = ContentValues().apply {
             put(COLUMN_EMP_X_EMPLEADO, empXEmpleado)
             put(COLUMN_C_DISPOSITIVO, cDispositivo)
             put(COLUMN_C_TIPFIC, cTipfic)
-            put(COLUMN_F_FICHAJE, obtenerFechaHoraActual()) // Fecha y hora actual
-            put(COLUMN_L_INFORMADO, "N") // Valor predeterminado
+            put(COLUMN_F_FICHAJE, obtenerFechaHoraActual())
+            put(COLUMN_L_INFORMADO, "N")
         }
 
-        // Intentamos insertar el registro en la tabla
+        // Insertar en la tabla
         val result = db.insert(TABLE_NAME, null, values)
         if (result == -1L) {
-            Log.e("DB", "Error al insertar el registro")
+            Log.e("DB", "Error al insertar el registro en la tabla $TABLE_NAME")
         } else {
-            Log.d("DB", "Registro insertado correctamente con ID: $result")
+            Log.d("DB", "Registro insertado correctamente en $TABLE_NAME con ID: $result")
         }
         db.close()
     }
 
-    // Método para actualizar la base de datos
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
         Log.d("DB", "Actualizando base de datos de versión $oldVersion a $newVersion")
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_NAME") // Elimina la tabla antigua
         onCreate(db) // Crea la tabla nueva
     }
 
-
     // Función para obtener la fecha y hora actual
     private fun obtenerFechaHoraActual(): String {
         val formato = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
         return formato.format(Date())
+    }
+
+    // Método opcional para leer todos los fichajes no informados
+    fun obtenerFichajesNoInformados(): List<Map<String, String>> {
+        val db = this.readableDatabase
+        val listaFichajes = mutableListOf<Map<String, String>>()
+
+        val query = "SELECT * FROM $TABLE_NAME WHERE $COLUMN_L_INFORMADO = 'N'"
+        val cursor = db.rawQuery(query, null)
+
+        if (cursor.moveToFirst()) {
+            do {
+                val registro = mapOf(
+                    COLUMN_X_FICTMP to cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_X_FICTMP)),
+                    COLUMN_EMP_X_EMPLEADO to cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_EMP_X_EMPLEADO)),
+                    COLUMN_C_DISPOSITIVO to cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_C_DISPOSITIVO)),
+                    COLUMN_C_TIPFIC to cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_C_TIPFIC)),
+                    COLUMN_F_FICHAJE to cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_F_FICHAJE))
+                )
+                listaFichajes.add(registro)
+            } while (cursor.moveToNext())
+        }
+
+        cursor.close()
+        db.close()
+        return listaFichajes
     }
 }

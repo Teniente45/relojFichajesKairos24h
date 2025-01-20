@@ -1,6 +1,8 @@
 package com.example.relojfichajeskairos24h
 
 import android.animation.ObjectAnimator
+import android.content.Context
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -18,6 +20,7 @@ class MainActivity : AppCompatActivity() {
 
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var campoTexto: EditText
+    private lateinit var dbHelper: EstructuraDB // Base de datos local
 
     // Variable que almacena el número ingresado
     private val stringBuilder = StringBuilder()
@@ -26,10 +29,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.portada)
 
-        // Inicializar vistas
+        // Inicializar vistas y base de datos
         campoTexto = findViewById(R.id.campoTexto)
         val btnEntrada = findViewById<Button>(R.id.btn_entrada)
         val btnSalida = findViewById<Button>(R.id.btn_salida)
+        dbHelper = EstructuraDB(this) // Inicialización de la base de datos
 
         // Botones numéricos
         val botonesNumericos = listOf(
@@ -56,31 +60,30 @@ class MainActivity : AppCompatActivity() {
                 if (stringBuilder.length < 6) { // Limitar a 6 dígitos
                     stringBuilder.append(index)
                     campoTexto.setText(stringBuilder.toString())
-                    // Animación al presionar el botón
                     animarBoton(button)
-                    resetearInactividad()  // Reiniciar temporizador
+                    resetearInactividad()
                 }
             }
         }
 
         // Botón borrar
         btnBorrarTeclado.setOnClickListener {
-            borrarCampoTexto()  // Borrar todo el contenido del campo de texto
-            resetearInactividad()  // Reiniciar temporizador
+            borrarCampoTexto()
+            resetearInactividad()
         }
 
         // Botón entrada
         btnEntrada.setOnClickListener {
-            manejarCodigoEntradaSalida(stringBuilder.toString(), empleados, "Entrada")
-            borrarCampoTexto()  // Borrar el campo de texto después de la acción
-            resetearInactividad()  // Reiniciar temporizador
+            manejarCodigoEntradaSalida(stringBuilder.toString(), empleados, "ENTRADA")
+            borrarCampoTexto()
+            resetearInactividad()
         }
 
         // Botón salida
         btnSalida.setOnClickListener {
-            manejarCodigoEntradaSalida(stringBuilder.toString(), empleados, "Salida")
-            borrarCampoTexto()  // Borrar el campo de texto después de la acción
-            resetearInactividad()  // Reiniciar temporizador
+            manejarCodigoEntradaSalida(stringBuilder.toString(), empleados, "SALIDA")
+            borrarCampoTexto()
+            resetearInactividad()
         }
 
         // Iniciar el temporizador de inactividad
@@ -96,15 +99,38 @@ class MainActivity : AppCompatActivity() {
         val codigoInt = codigo.toIntOrNull()
         if (codigoInt != null) {
             if (comprobarCodigoEmpleado(codigoInt, empleados)) {
-                val horaActual = obtenerHoraActual()  // Obtener la hora actual
-                val mensaje = "$tipo registrada correctamente a las $horaActual"
-                Toast.makeText(this, mensaje, Toast.LENGTH_SHORT).show()
+                val cDispositivo = "DISP001" // Código del dispositivo (ejemplo)
+                if (hayConexionInternet()) {
+                    // Enviar al servidor
+                    enviarFichajeAServidor(codigoInt.toString(), cDispositivo, tipo)
+                } else {
+                    // Guardar en la base de datos local
+                    dbHelper.insertarFichaje(codigoInt.toString(), cDispositivo, tipo)
+                    Toast.makeText(
+                        this,
+                        "No hay conexión. Fichaje guardado localmente.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             } else {
                 Toast.makeText(this, "Código incorrecto", Toast.LENGTH_SHORT).show()
             }
         } else {
             Toast.makeText(this, "Por favor, ingrese un código válido", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    // Comprobar conexión a internet
+    private fun hayConexionInternet(): Boolean {
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkInfo = connectivityManager.activeNetworkInfo
+        return networkInfo != null && networkInfo.isConnected
+    }
+
+    // Enviar fichaje al servidor (simulado)
+    private fun enviarFichajeAServidor(empXEmpleado: String, cDispositivo: String?, cTipfic: String) {
+        // Aquí implementas la lógica real para enviar al servidor
+        Toast.makeText(this, "Fichaje enviado al servidor", Toast.LENGTH_SHORT).show()
     }
 
     // Obtener la hora actual en formato HH:mm:ss
@@ -115,22 +141,15 @@ class MainActivity : AppCompatActivity() {
 
     // Animar el botón con un efecto de agrandar y transparencia
     private fun animarBoton(button: Button) {
-        // Animación para agrandar el botón
         val scaleX = ObjectAnimator.ofFloat(button, "scaleX", 1f, 1.5f, 1f)
         val scaleY = ObjectAnimator.ofFloat(button, "scaleY", 1f, 1.5f, 1f)
         val alpha = ObjectAnimator.ofFloat(button, "alpha", 1f, 0.5f, 1f)
-
-        // Duración de la animación
         scaleX.duration = 400
         scaleY.duration = 400
         alpha.duration = 400
-
-        // Interpolador para un movimiento suave
         scaleX.interpolator = LinearInterpolator()
         scaleY.interpolator = LinearInterpolator()
         alpha.interpolator = LinearInterpolator()
-
-        // Iniciar las animaciones
         scaleX.start()
         scaleY.start()
         alpha.start()
@@ -158,19 +177,16 @@ class MainActivity : AppCompatActivity() {
 
     // Reiniciar el temporizador de inactividad
     private fun resetearInactividad() {
-        // Detener cualquier ejecución previa y reiniciar el temporizador
         handler.removeCallbacksAndMessages(null)
-
-        // Volver a programar el borrado del campo de texto después de 5 segundos
         handler.postDelayed({
-            borrarCampoTexto()  // Borra el contenido del campo de texto
-        }, 5000) // 5000 milisegundos = 5 segundos
+            borrarCampoTexto()
+        }, 5000)
     }
 
     // Función para borrar el campo de texto
     private fun borrarCampoTexto() {
-        campoTexto.setText("") // Borra el contenido del campo de texto
-        stringBuilder.clear()  // Borra el contenido de la variable que almacena el número
+        campoTexto.setText("")
+        stringBuilder.clear()
     }
 }
 
