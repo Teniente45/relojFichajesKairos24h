@@ -4,20 +4,25 @@ import android.animation.ObjectAnimator
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.speech.tts.TextToSpeech
+import android.speech.tts.TextToSpeech.OnInitListener
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import android.view.animation.LinearInterpolator
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
 import java.io.InputStreamReader
 import java.text.SimpleDateFormat
 import java.util.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), OnInitListener {
 
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var campoTexto: EditText
+    private lateinit var cuadroEmergente: TextView  // Renombrado para mostrar los mensajes
+    private lateinit var textToSpeech: TextToSpeech
 
     // Variable que almacena el número ingresado
     private val stringBuilder = StringBuilder()
@@ -28,8 +33,12 @@ class MainActivity : AppCompatActivity() {
 
         // Inicializar vistas
         campoTexto = findViewById(R.id.campoTexto)
+        cuadroEmergente = findViewById(R.id.cuadroEmergente)  // Referencia al cuadro de mensajes
         val btnEntrada = findViewById<Button>(R.id.btn_entrada)
         val btnSalida = findViewById<Button>(R.id.btn_salida)
+
+        // Inicializar TextToSpeech
+        textToSpeech = TextToSpeech(this, this)
 
         // Botones numéricos
         val botonesNumericos = listOf(
@@ -87,6 +96,10 @@ class MainActivity : AppCompatActivity() {
         resetearInactividad()
     }
 
+
+
+
+    // MIRAR ESTO FUERTEEEEEEEEE
     // Función para manejar códigos de entrada y salida
     private fun manejarCodigoEntradaSalida(
         codigo: String,
@@ -98,13 +111,37 @@ class MainActivity : AppCompatActivity() {
             if (comprobarCodigoEmpleado(codigoInt, empleados)) {
                 val horaActual = obtenerHoraActual()  // Obtener la hora actual
                 val mensaje = "$tipo registrada correctamente a las $horaActual"
-                Toast.makeText(this, mensaje, Toast.LENGTH_SHORT).show()
+                mostrarMensaje("$tipo correcta a las $horaActual", tipo)
+                // Reproducir mensaje de voz
+                textToSpeech.speak("$tipo correcta", TextToSpeech.QUEUE_FLUSH, null, null)
             } else {
-                Toast.makeText(this, "Código incorrecto", Toast.LENGTH_SHORT).show()
+                mostrarMensaje("Código incorrecto", "error")
             }
         } else {
             Toast.makeText(this, "Por favor, ingrese un código válido", Toast.LENGTH_SHORT).show()
         }
+    }
+    // MIRAR ESTO FUERTEEEEEEEEE
+
+
+
+
+
+    private fun mostrarMensaje(mensaje: String, tipo: String) {
+        cuadroEmergente.text = mensaje
+        cuadroEmergente.visibility = TextView.VISIBLE
+
+        // Cambiar el color según el tipo de mensaje
+        if (tipo == "Entrada" || tipo == "Salida") {
+            cuadroEmergente.setTextColor(resources.getColor(android.R.color.holo_green_dark))
+        } else if (tipo == "error") {
+            cuadroEmergente.setTextColor(resources.getColor(android.R.color.holo_red_dark))
+        }
+
+        // Usar un Handler para que el mensaje desaparezca después de 5 segundos
+        handler.postDelayed({
+            cuadroEmergente.visibility = TextView.GONE  // Eliminar el mensaje completamente
+        }, 5000) // 5000 ms = 5 segundos
     }
 
     // Obtener la hora actual en formato HH:mm:ss
@@ -164,13 +201,31 @@ class MainActivity : AppCompatActivity() {
         // Volver a programar el borrado del campo de texto después de 5 segundos
         handler.postDelayed({
             borrarCampoTexto()  // Borra el contenido del campo de texto
-        }, 5000) // 5000 milisegundos = 5 segundos
+        }, 3000) // 5000 milisegundos = 5 segundos
     }
 
     // Función para borrar el campo de texto
     private fun borrarCampoTexto() {
         campoTexto.setText("") // Borra el contenido del campo de texto
         stringBuilder.clear()  // Borra el contenido de la variable que almacena el número
+    }
+
+    // Inicialización de TextToSpeech
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            // El TTS se ha inicializado correctamente, se pueden emitir mensajes.
+        } else {
+            Toast.makeText(this, "Error en la inicialización del TTS", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onDestroy() {
+        // Liberar recursos cuando la actividad se destruya
+        if (::textToSpeech.isInitialized) {
+            textToSpeech.stop()
+            textToSpeech.shutdown()
+        }
+        super.onDestroy()
     }
 }
 
