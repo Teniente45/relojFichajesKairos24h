@@ -20,7 +20,7 @@
     <!-- Otros botones -->
     <string name="btn_borrar">LIMPIAR</string>
     <string name="btn_entrada">Entrada</string>
-    <string name="btn_salida">"Salida "</string>
+    <string name="btn_salida">Salida</string>
     <string name="campo_texto">Campo de texto para introducir código de empleado\n</string>
     <string name="create_table_if_not_exists_integer_primary_key_autoincrement_varchar_6_not_null_varchar_2_not_null_datetime_not_null_varchar_1_not_null_default_n_engine_innodb_default_charset_latin1">"\n            CREATE TABLE IF NOT EXISTS %1$s (\n                %2$s INTEGER PRIMARY KEY AUTOINCREMENT,\n                %3$s VARCHAR(6) NOT NULL,\n                %4$s VARCHAR(2) NOT NULL,\n                %5$s DATETIME NOT NULL,\n                %6$s VARCHAR(1) NOT NULL DEFAULT 'N'\n            ) ENGINE=INNODB DEFAULT CHARSET=LATIN1;\n        "</string>
 </resources>
