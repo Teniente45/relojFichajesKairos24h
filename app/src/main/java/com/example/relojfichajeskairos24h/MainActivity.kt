@@ -97,9 +97,6 @@ class MainActivity : AppCompatActivity(), OnInitListener {
     }
 
 
-
-
-    // MIRAR ESTO FUERTEEEEEEEEE
     // Función para manejar códigos de entrada y salida
     private fun manejarCodigoEntradaSalida(
         codigo: String,
@@ -110,10 +107,10 @@ class MainActivity : AppCompatActivity(), OnInitListener {
         if (codigoInt != null) {
             if (comprobarCodigoEmpleado(codigoInt, empleados)) {
                 val horaActual = obtenerHoraActual()  // Obtener la hora actual
-                val mensaje = "$tipo registrada correctamente a las $horaActual"
-                mostrarMensaje("$tipo correcta a las $horaActual", tipo)
+                val mensaje = "Has ${if (tipo == "Entrada") "entrado" else "salido"} a las $horaActual"
+                mostrarMensaje(mensaje, "correcto")
                 // Reproducir mensaje de voz
-                textToSpeech.speak("$tipo correcta", TextToSpeech.QUEUE_FLUSH, null, null)
+                textToSpeech.speak(mensaje, TextToSpeech.QUEUE_FLUSH, null, null)
             } else {
                 mostrarMensaje("Código incorrecto", "error")
             }
@@ -121,27 +118,23 @@ class MainActivity : AppCompatActivity(), OnInitListener {
             Toast.makeText(this, "Por favor, ingrese un código válido", Toast.LENGTH_SHORT).show()
         }
     }
-    // MIRAR ESTO FUERTEEEEEEEEE
-
-
-
-
 
     private fun mostrarMensaje(mensaje: String, tipo: String) {
+        // Establecer el texto del mensaje
         cuadroEmergente.text = mensaje
-        cuadroEmergente.visibility = TextView.VISIBLE
+        cuadroEmergente.visibility = TextView.VISIBLE  // Mostrar el cuadro emergente
 
         // Cambiar el color según el tipo de mensaje
-        if (tipo == "Entrada" || tipo == "Salida") {
-            cuadroEmergente.setTextColor(resources.getColor(android.R.color.holo_green_dark))
-        } else if (tipo == "error") {
-            cuadroEmergente.setTextColor(resources.getColor(android.R.color.holo_red_dark))
+        when (tipo) {
+            "correcto" -> cuadroEmergente.setTextColor(resources.getColor(android.R.color.holo_green_dark))
+            "error" -> cuadroEmergente.setTextColor(resources.getColor(android.R.color.holo_red_dark))
+            else -> cuadroEmergente.setTextColor(resources.getColor(android.R.color.black))
         }
 
-        // Usar un Handler para que el mensaje desaparezca después de 5 segundos
+        // Usar un Handler para que el mensaje desaparezca después de 2 segundos
         handler.postDelayed({
             cuadroEmergente.visibility = TextView.GONE  // Eliminar el mensaje completamente
-        }, 5000) // 5000 ms = 5 segundos
+        }, 2000) // 2000 ms = 2 segundos
     }
 
     // Obtener la hora actual en formato HH:mm:ss
@@ -149,6 +142,7 @@ class MainActivity : AppCompatActivity(), OnInitListener {
         val formatoHora = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
         return formatoHora.format(Date())
     }
+
 
     // Animar el botón con un efecto de agrandar y transparencia
     private fun animarBoton(button: Button) {
