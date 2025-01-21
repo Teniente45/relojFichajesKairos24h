@@ -6,6 +6,7 @@ import android.net.ConnectivityManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -13,6 +14,8 @@ import android.view.animation.LinearInterpolator
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
 import java.io.InputStreamReader
+import java.net.HttpURLConnection
+import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -57,7 +60,7 @@ class MainActivity : AppCompatActivity() {
         // Configurar botones numéricos
         for ((index, button) in botonesNumericos.withIndex()) {
             button.setOnClickListener {
-                if (stringBuilder.length < 6) { // Limitar a 6 dígitos
+                if (stringBuilder.length < 4) { // Limitar a 4 dígitos
                     stringBuilder.append(index)
                     campoTexto.setText(stringBuilder.toString())
                     animarBoton(button)
@@ -65,32 +68,29 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-
         // Botón borrar
         btnBorrarTeclado.setOnClickListener {
             borrarCampoTexto()
             resetearInactividad()
         }
-
         // Botón entrada
         btnEntrada.setOnClickListener {
             manejarCodigoEntradaSalida(stringBuilder.toString(), empleados, "ENTRADA")
             borrarCampoTexto()
             resetearInactividad()
         }
-
         // Botón salida
         btnSalida.setOnClickListener {
             manejarCodigoEntradaSalida(stringBuilder.toString(), empleados, "SALIDA")
             borrarCampoTexto()
             resetearInactividad()
         }
-
         // Iniciar el temporizador de inactividad
         resetearInactividad()
     }
 
     // Función para manejar códigos de entrada y salida
+// Función para manejar códigos de entrada y salida
     private fun manejarCodigoEntradaSalida(
         codigo: String,
         empleados: List<Empleado>,
@@ -99,38 +99,85 @@ class MainActivity : AppCompatActivity() {
         val codigoInt = codigo.toIntOrNull()
         if (codigoInt != null) {
             if (comprobarCodigoEmpleado(codigoInt, empleados)) {
-                val cDispositivo = "DISP001" // Código del dispositivo (ejemplo)
+                val empleado = empleados.find { it.X_EMPLEADO == codigoInt }
+                val cDispositivo = "TABLET1" // Ejemplo de código de dispositivo
+                val cTipfic = tipo // "ENTRADA" o "SALIDA"
+                val cFichaje = obtenerHoraActual() // La hora actual del fichaje
+
                 if (hayConexionInternet()) {
+                    // Construir la URL con todos los parámetros
+                    val url = "http://192.168.25.47:8008/kairos24h/index.php?r=citaRedWeb/crearFichajeExterno" +
+                            "&xGrupo=" +
+                            "&xEntidad=1003" +
+                            "&cKiosko=$cDispositivo" +
+                            "&cEmpCppExt=${empleado?.X_EMPLEADO}" +
+                            "&cTipFic=$cTipfic" +
+                            "&cFicOri=PUEFIC" +
+                            "&fFichaje=$cFichaje"
+
                     // Enviar al servidor
-                    enviarFichajeAServidor(codigoInt.toString(), cDispositivo, tipo)
+                    enviarFichajeAServidor(url)
                 } else {
                     // Guardar en la base de datos local
-                    dbHelper.insertarFichaje(codigoInt.toString(), cDispositivo, tipo)
-                    Toast.makeText(
-                        this,
-                        "No hay conexión. Fichaje guardado localmente.",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    dbHelper.insertarFichaje(empleado?.X_EMPLEADO.toString(), cDispositivo, cTipfic)
+                    Log.d("FichajeApp", "No hay conexión. Fichaje guardado localmente.")
                 }
             } else {
                 Toast.makeText(this, "Código incorrecto", Toast.LENGTH_SHORT).show()
             }
-        } else {
-            Toast.makeText(this, "Por favor, ingrese un código válido", Toast.LENGTH_SHORT).show()
         }
     }
+
+    // Enviar la URL al servidor
+    private fun enviarFichajeAServidor(url: String) {
+        Thread {
+            try {
+                val urlConnection = URL(url).openConnection() as HttpURLConnection
+                urlConnection.requestMethod = "GET"
+                urlConnection.connect()
+
+                // Obtener el código de respuesta del servidor
+                val responseCode = urlConnection.responseCode
+
+                // Comprobar si la respuesta es exitosa (código 200)
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    // Solicitud exitosa
+                    Log.d("FichajeApp", "Fichaje enviado correctamente al servidor. Código de respuesta: $responseCode")
+
+                    // Puedes hacer algo adicional si la respuesta fue exitosa, como actualizar la UI
+                    handler.post {
+                        Toast.makeText(this@MainActivity, "Fichaje enviado correctamente", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    // Respuesta no exitosa
+                    Log.e("FichajeApp", "Error al enviar el fichaje. Código de respuesta: $responseCode")
+
+                    // Mostrar un mensaje de error en la UI
+                    handler.post {
+                        Toast.makeText(this@MainActivity, "Error al enviar el fichaje", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+
+                // Si ocurre un error en la solicitud, puedes manejarlo aquí
+                Log.e("FichajeApp", "Error al enviar el fichaje", e)
+
+                // Mostrar un mensaje en la UI si ocurre un error
+                handler.post {
+                    Toast.makeText(this@MainActivity, "Error al enviar el fichaje", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }.start()
+    }
+
+
 
     // Comprobar conexión a internet
     private fun hayConexionInternet(): Boolean {
         val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkInfo = connectivityManager.activeNetworkInfo
         return networkInfo != null && networkInfo.isConnected
-    }
-
-    // Enviar fichaje al servidor (simulado)
-    private fun enviarFichajeAServidor(empXEmpleado: String, cDispositivo: String?, cTipfic: String) {
-        // Aquí implementas la lógica real para enviar al servidor
-        Toast.makeText(this, "Fichaje enviado al servidor", Toast.LENGTH_SHORT).show()
     }
 
     // Obtener la hora actual en formato HH:mm:ss

@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.relojfichajeskairos24h"
-        minSdk = 21
+        minSdk = 28 // Actualiza esto a 28 o superior
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
