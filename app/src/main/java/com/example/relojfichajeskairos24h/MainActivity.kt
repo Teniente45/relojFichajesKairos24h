@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
 
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var campoTexto: EditText
-    // private lateinit var dbHelper: EstructuraDB // Base de datos local
+    //private lateinit var dbHelper: EstructuraDB // Base de datos local
 
     // Variable que almacena el número ingresado
     private val stringBuilder = StringBuilder()
@@ -38,100 +38,70 @@ class MainActivity : AppCompatActivity() {
         val btnEntrada = findViewById<Button>(R.id.btn_entrada)
         val btnSalida = findViewById<Button>(R.id.btn_salida)
         // dbHelper = EstructuraDB(this) // Inicialización de la base de datos
-
-        // Botones numéricos
-        val botonesNumericos = listOf(
-            findViewById<Button>(R.id.btn0),
-            findViewById<Button>(R.id.btn1),
-            findViewById<Button>(R.id.btn2),
-            findViewById<Button>(R.id.btn3),
-            findViewById<Button>(R.id.btn4),
-            findViewById<Button>(R.id.btn5),
-            findViewById<Button>(R.id.btn6),
-            findViewById<Button>(R.id.btn7),
-            findViewById<Button>(R.id.btn8),
-            findViewById<Button>(R.id.btn9)
-        )
-
         val btnBorrarTeclado = findViewById<Button>(R.id.btnBorrarTeclado)
 
-        // Leer empleados desde JSON
-        val empleados = leerEmpleadosDesdeJSON()
-
-        // Configurar botones numéricos
-        for ((index, button) in botonesNumericos.withIndex()) {
-            button.setOnClickListener {
-                if (stringBuilder.length < 4) { // Limitar a 4 dígitos
-                    stringBuilder.append(index)
+        // Botones numéricos
+        listOf(
+            R.id.btn0, R.id.btn1, R.id.btn2, R.id.btn3, R.id.btn4,
+            R.id.btn5, R.id.btn6, R.id.btn7, R.id.btn8, R.id.btn9
+        ).forEach { id ->
+            findViewById<Button>(id).setOnClickListener {
+                if (stringBuilder.length < 4) {
+                    stringBuilder.append(it.tag ?: (it as Button).text.toString())
                     campoTexto.setText(stringBuilder.toString())
-                    animarBoton(button)
+                    animarBoton(it as Button)
                     resetearInactividad()
                 }
             }
         }
+
         // Botón borrar
         btnBorrarTeclado.setOnClickListener {
             borrarCampoTexto()
             resetearInactividad()
         }
+
         // Botón entrada
         btnEntrada.setOnClickListener {
-            manejarCodigoEntradaSalida(stringBuilder.toString(), empleados, "ENTRADA")
-            /*borrarCampoTexto()
+            manejarCodigoEntradaSalida(stringBuilder.toString(), "ENTRADA")
+            borrarCampoTexto()
             resetearInactividad()
-
-             */
         }
+
         // Botón salida
         btnSalida.setOnClickListener {
-            manejarCodigoEntradaSalida(stringBuilder.toString(), empleados, "SALIDA")
-            /*borrarCampoTexto()
+            manejarCodigoEntradaSalida(stringBuilder.toString(), "SALIDA")
+            borrarCampoTexto()
             resetearInactividad()
-
-             */
         }
+
         // Iniciar el temporizador de inactividad
         resetearInactividad()
     }
 
-    // Función para manejar códigos de entrada y salida
-    private fun manejarCodigoEntradaSalida(
-        codigo: String,
-        empleados: List<Empleado>, // ya no se usará
-        tipo: String
-    ) {
-        val codigoInt = codigo.toIntOrNull()
-        if (codigoInt != null) {
-            val cTipfic = tipo
+    // Funcion encargada de enviar los fichajes al servidor
+    private fun manejarCodigoEntradaSalida(codigo: String, tipo: String) {
+        codigo.toIntOrNull()?.let {
             if (hayConexionInternet()) {
-                val codigoEncoded = URLEncoder.encode(codigoInt.toString(), "UTF-8")
-                val tipoEncoded = URLEncoder.encode(cTipfic, "UTF-8")
-
                 val url = BuildURL.setfichaje
-                    .replace("cEmpCppExt=", "cEmpCppExt=$codigoEncoded")
-                    .replace("cTipFic=", "cTipFic=$tipoEncoded")
-
+                    .replace("cEmpCppExt=", "cEmpCppExt=${URLEncoder.encode(it.toString(), "UTF-8")}")
+                    .replace("cTipFic=", "cTipFic=${URLEncoder.encode(tipo, "UTF-8")}")
                 enviarFichajeAServidor(url)
             } else {
                 Log.d("FichajeApp", "No hay conexión. Fichaje guardado localmente.")
             }
-        } else {
-            Toast.makeText(this, "Código inválido", Toast.LENGTH_SHORT).show()
-        }
+        } ?: Toast.makeText(this, "Código inválido", Toast.LENGTH_SHORT).show()
     }
 
     // Comprobar conexión a internet
     private fun hayConexionInternet(): Boolean {
-        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val networkInfo = connectivityManager.activeNetworkInfo
-        return networkInfo != null && networkInfo.isConnected
+        val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        return cm.activeNetworkInfo?.isConnected == true
     }
 
     // Obtener la hora actual en formato HH:mm:ss
-    private fun obtenerHoraActual(): String {
-        val formatoHora = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
-        return formatoHora.format(Date())
-    }
+    private fun obtenerHoraActual(): String =
+        SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
 
     // Animar el botón con un efecto de agrandar y transparencia
     private fun animarBoton(button: Button) {
@@ -147,21 +117,6 @@ class MainActivity : AppCompatActivity() {
         scaleX.start()
         scaleY.start()
         alpha.start()
-    }
-
-    // Leer empleados desde el archivo JSON
-    private fun leerEmpleadosDesdeJSON(): List<Empleado> {
-        return try {
-            val inputStream = assets.open("codigos.json")
-            val reader = InputStreamReader(inputStream)
-            val gson = Gson()
-            val empleadosResponse = gson.fromJson(reader, EmpleadosResponse::class.java)
-            empleadosResponse.empleados
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Toast.makeText(this, "Error al cargar los empleados", Toast.LENGTH_LONG).show()
-            emptyList()
-        }
     }
 
     // Reiniciar el temporizador de inactividad
@@ -181,26 +136,25 @@ class MainActivity : AppCompatActivity() {
     private fun enviarFichajeAServidor(url: String) {
         Thread {
             try {
-                val connection = URL(url).openConnection() as HttpURLConnection
-                connection.requestMethod = "GET"
-                val responseCode = connection.responseCode
+                val connection = (URL(url).openConnection() as HttpURLConnection).apply {
+                    requestMethod = "GET"
+                }
 
-                val responseText = connection.inputStream.bufferedReader().use { it.readText() }
+                connection.inputStream.use { stream ->
+                    val responseText = stream.bufferedReader().use { it.readText() }
+                    Log.d("FichajeApp", "Respuesta del servidor: $responseText")
 
-                Log.d("FichajeApp", "Respuesta del servidor: $responseText")
+                    val respuesta = Gson().fromJson(responseText, RespuestaFichaje::class.java)
+                    runOnUiThread {
+                        val mensaje = if (respuesta.message.isNullOrBlank())
+                            "Fichaje ${respuesta.cTipFic} correcto a las ${respuesta.hFichaje}"
+                        else "Error: ${respuesta.message}"
 
-                val gson = Gson()
-                val respuesta = gson.fromJson(responseText, RespuestaFichaje::class.java)
-
-                runOnUiThread {
-                    if (respuesta.message.isNullOrBlank()) {
-                        Toast.makeText(this, "Fichaje ${respuesta.cTipFic} correcto a las ${respuesta.hFichaje}", Toast.LENGTH_LONG).show()
-                        Logs.registrar(this, "Fichaje ${respuesta.cTipFic ?: "DESCONOCIDO"}: ${respuesta.message ?: "Correcto"} a las ${respuesta.hFichaje ?: "?"}")
-                    } else {
-                        Toast.makeText(this, "Error: ${respuesta.message}", Toast.LENGTH_LONG).show()
-                        Logs.registrar(this, "Fichaje ${respuesta.cTipFic ?: "DESCONOCIDO"}: ${respuesta.message ?: "Correcto"} a las ${respuesta.hFichaje ?: "?"}")
+                        Toast.makeText(this, mensaje, Toast.LENGTH_LONG).show()
+                        Logs.registrar(this, mensaje)
                     }
                 }
+
                 connection.disconnect()
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -214,15 +168,6 @@ class MainActivity : AppCompatActivity() {
 }
 
 // Clases de datos
-data class Empleado(
-    val X_EMPLEADO: Int,
-    val D_EMPLEADO: String
-)
-
-data class EmpleadosResponse(
-    val empleados: List<Empleado>
-)
-
 data class RespuestaFichaje(
     val code: Int,
     val message: String?,
