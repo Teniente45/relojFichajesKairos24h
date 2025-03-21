@@ -16,6 +16,7 @@ import com.google.gson.Gson
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
+import java.net.URLEncoder
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -23,7 +24,7 @@ class MainActivity : AppCompatActivity() {
 
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var campoTexto: EditText
-    private lateinit var dbHelper: EstructuraDB // Base de datos local
+    // private lateinit var dbHelper: EstructuraDB // Base de datos local
 
     // Variable que almacena el número ingresado
     private val stringBuilder = StringBuilder()
@@ -36,7 +37,7 @@ class MainActivity : AppCompatActivity() {
         campoTexto = findViewById(R.id.campoTexto)
         val btnEntrada = findViewById<Button>(R.id.btn_entrada)
         val btnSalida = findViewById<Button>(R.id.btn_salida)
-        dbHelper = EstructuraDB(this) // Inicialización de la base de datos
+        // dbHelper = EstructuraDB(this) // Inicialización de la base de datos
 
         // Botones numéricos
         val botonesNumericos = listOf(
@@ -76,102 +77,48 @@ class MainActivity : AppCompatActivity() {
         // Botón entrada
         btnEntrada.setOnClickListener {
             manejarCodigoEntradaSalida(stringBuilder.toString(), empleados, "ENTRADA")
-            borrarCampoTexto()
+            /*borrarCampoTexto()
             resetearInactividad()
+
+             */
         }
         // Botón salida
         btnSalida.setOnClickListener {
             manejarCodigoEntradaSalida(stringBuilder.toString(), empleados, "SALIDA")
-            borrarCampoTexto()
+            /*borrarCampoTexto()
             resetearInactividad()
+
+             */
         }
         // Iniciar el temporizador de inactividad
         resetearInactividad()
     }
 
     // Función para manejar códigos de entrada y salida
-// Función para manejar códigos de entrada y salida
     private fun manejarCodigoEntradaSalida(
         codigo: String,
-        empleados: List<Empleado>,
+        empleados: List<Empleado>, // ya no se usará
         tipo: String
     ) {
         val codigoInt = codigo.toIntOrNull()
         if (codigoInt != null) {
-            if (comprobarCodigoEmpleado(codigoInt, empleados)) {
-                val empleado = empleados.find { it.X_EMPLEADO == codigoInt }
-                val cDispositivo = "TABLET1" // Ejemplo de código de dispositivo
-                val cTipfic = tipo // "ENTRADA" o "SALIDA"
-                val cFichaje = obtenerHoraActual() // La hora actual del fichaje
+            val cTipfic = tipo
+            if (hayConexionInternet()) {
+                val codigoEncoded = URLEncoder.encode(codigoInt.toString(), "UTF-8")
+                val tipoEncoded = URLEncoder.encode(cTipfic, "UTF-8")
 
-                if (hayConexionInternet()) {
-                    // Construir la URL con todos los parámetros
-                    val url = "http://192.168.25.47:8008/kairos24h/index.php?r=citaRedWeb/crearFichajeExterno" +
-                            "&xGrupo=" +
-                            "&xEntidad=1003" +
-                            "&cKiosko=$cDispositivo" +
-                            "&cEmpCppExt=${empleado?.X_EMPLEADO}" +
-                            "&cTipFic=$cTipfic" +
-                            "&cFicOri=PUEFIC" +
-                            "&fFichaje=$cFichaje"
+                val url = BuildURL.setfichaje
+                    .replace("cEmpCppExt=", "cEmpCppExt=$codigoEncoded")
+                    .replace("cTipFic=", "cTipFic=$tipoEncoded")
 
-                    // Enviar al servidor
-                    enviarFichajeAServidor(url)
-                } else {
-                    // Guardar en la base de datos local
-                    dbHelper.insertarFichaje(empleado?.X_EMPLEADO.toString(), cDispositivo, cTipfic)
-                    Log.d("FichajeApp", "No hay conexión. Fichaje guardado localmente.")
-                }
+                enviarFichajeAServidor(url)
             } else {
-                Toast.makeText(this, "Código incorrecto", Toast.LENGTH_SHORT).show()
+                Log.d("FichajeApp", "No hay conexión. Fichaje guardado localmente.")
             }
+        } else {
+            Toast.makeText(this, "Código inválido", Toast.LENGTH_SHORT).show()
         }
     }
-
-    // Enviar la URL al servidor
-    private fun enviarFichajeAServidor(url: String) {
-        Thread {
-            try {
-                val urlConnection = URL(url).openConnection() as HttpURLConnection
-                urlConnection.requestMethod = "GET"
-                urlConnection.connect()
-
-                // Obtener el código de respuesta del servidor
-                val responseCode = urlConnection.responseCode
-
-                // Comprobar si la respuesta es exitosa (código 200)
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    // Solicitud exitosa
-                    Log.d("FichajeApp", "Fichaje enviado correctamente al servidor. Código de respuesta: $responseCode")
-
-                    // Puedes hacer algo adicional si la respuesta fue exitosa, como actualizar la UI
-                    handler.post {
-                        Toast.makeText(this@MainActivity, "Fichaje enviado correctamente", Toast.LENGTH_SHORT).show()
-                    }
-                } else {
-                    // Respuesta no exitosa
-                    Log.e("FichajeApp", "Error al enviar el fichaje. Código de respuesta: $responseCode")
-
-                    // Mostrar un mensaje de error en la UI
-                    handler.post {
-                        Toast.makeText(this@MainActivity, "Error al enviar el fichaje", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-
-                // Si ocurre un error en la solicitud, puedes manejarlo aquí
-                Log.e("FichajeApp", "Error al enviar el fichaje", e)
-
-                // Mostrar un mensaje en la UI si ocurre un error
-                handler.post {
-                    Toast.makeText(this@MainActivity, "Error al enviar el fichaje", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }.start()
-    }
-
-
 
     // Comprobar conexión a internet
     private fun hayConexionInternet(): Boolean {
@@ -217,11 +164,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Comprobar si el código ingresado es válido
-    private fun comprobarCodigoEmpleado(codigo: Int, empleados: List<Empleado>): Boolean {
-        return empleados.any { it.X_EMPLEADO == codigo }
-    }
-
     // Reiniciar el temporizador de inactividad
     private fun resetearInactividad() {
         handler.removeCallbacksAndMessages(null)
@@ -235,6 +177,40 @@ class MainActivity : AppCompatActivity() {
         campoTexto.setText("")
         stringBuilder.clear()
     }
+
+    private fun enviarFichajeAServidor(url: String) {
+        Thread {
+            try {
+                val connection = URL(url).openConnection() as HttpURLConnection
+                connection.requestMethod = "GET"
+                val responseCode = connection.responseCode
+
+                val responseText = connection.inputStream.bufferedReader().use { it.readText() }
+
+                Log.d("FichajeApp", "Respuesta del servidor: $responseText")
+
+                val gson = Gson()
+                val respuesta = gson.fromJson(responseText, RespuestaFichaje::class.java)
+
+                runOnUiThread {
+                    if (respuesta.message.isNullOrBlank()) {
+                        Toast.makeText(this, "Fichaje ${respuesta.cTipFic} correcto a las ${respuesta.hFichaje}", Toast.LENGTH_LONG).show()
+                        Logs.registrar(this, "Fichaje ${respuesta.cTipFic ?: "DESCONOCIDO"}: ${respuesta.message ?: "Correcto"} a las ${respuesta.hFichaje ?: "?"}")
+                    } else {
+                        Toast.makeText(this, "Error: ${respuesta.message}", Toast.LENGTH_LONG).show()
+                        Logs.registrar(this, "Fichaje ${respuesta.cTipFic ?: "DESCONOCIDO"}: ${respuesta.message ?: "Correcto"} a las ${respuesta.hFichaje ?: "?"}")
+                    }
+                }
+                connection.disconnect()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                runOnUiThread {
+                    Toast.makeText(this, "Error de conexión al fichar", Toast.LENGTH_SHORT).show()
+                    Logs.registrar(this, "Error de conexión al fichar: ${e.localizedMessage}")
+                }
+            }
+        }.start()
+    }
 }
 
 // Clases de datos
@@ -245,4 +221,13 @@ data class Empleado(
 
 data class EmpleadosResponse(
     val empleados: List<Empleado>
+)
+
+data class RespuestaFichaje(
+    val code: Int,
+    val message: String?,
+    val xFichaje: String?,
+    val cTipFic: String?,
+    val fFichaje: String?,
+    val hFichaje: String?
 )
