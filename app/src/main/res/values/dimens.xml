@@ -2,7 +2,7 @@
     <dimen name="button_width">240dp</dimen>
     <dimen name="button_widthSalidaEntrada">400dp</dimen>
     <dimen name="button_heightSalidaEntrada">90dp</dimen>
-    <dimen name="buttonNumerico">20dp</dimen>
+    <dimen name="buttonNumerico">40dp</dimen>
     <dimen name="layoutWidthEntradaYSalida">110dp</dimen>
     <dimen name="layoutMarginButtonsNumericos">4dp</dimen>
 

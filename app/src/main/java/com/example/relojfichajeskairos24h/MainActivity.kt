@@ -2,15 +2,19 @@ package com.example.relojfichajeskairos24h
 
 import android.animation.ObjectAnimator
 import android.content.Context
+import android.speech.tts.TextToSpeech
+import java.util.Locale
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import android.view.animation.LinearInterpolator
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
 import java.io.InputStreamReader
@@ -22,6 +26,7 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var textToSpeech: TextToSpeech
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var campoTexto: EditText
     //private lateinit var dbHelper: EstructuraDB // Base de datos local
@@ -33,10 +38,18 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.portada)
 
+        // Lee los mensajes de TextView en alto
+        textToSpeech = TextToSpeech(this) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                textToSpeech.language = Locale("es", "ES") // Español
+            }
+        }
+
         // Inicializar vistas y base de datos
         campoTexto = findViewById(R.id.campoTexto)
         val btnEntrada = findViewById<Button>(R.id.btn_entrada)
         val btnSalida = findViewById<Button>(R.id.btn_salida)
+        val mensajeDinamico = findViewById<TextView>(R.id.mensajeDinamico)
         // dbHelper = EstructuraDB(this) // Inicialización de la base de datos
         val btnBorrarTeclado = findViewById<Button>(R.id.btnBorrarTeclado)
 
@@ -79,6 +92,22 @@ class MainActivity : AppCompatActivity() {
         resetearInactividad()
     }
 
+    private fun mostrarMensajeDinamico(texto: String, color: Int, textoParaVoz: String = texto) {
+        val mensajeDinamico = findViewById<TextView>(R.id.mensajeDinamico)
+        mensajeDinamico.text = texto
+        mensajeDinamico.setTextColor(color)
+        mensajeDinamico.textSize = 20f
+        mensajeDinamico.visibility = View.VISIBLE
+
+        // Leer solo el mensaje deseado
+        textToSpeech.speak(textoParaVoz, TextToSpeech.QUEUE_FLUSH, null, null)
+
+        handler.removeCallbacksAndMessages(null)
+        handler.postDelayed({
+            mensajeDinamico.visibility = View.GONE
+        }, 15000)
+    }
+
     // Funcion encargada de enviar los fichajes al servidor
     private fun manejarCodigoEntradaSalida(codigo: String, tipo: String) {
         codigo.toIntOrNull()?.let {
@@ -88,9 +117,11 @@ class MainActivity : AppCompatActivity() {
                     .replace("cTipFic=", "cTipFic=${URLEncoder.encode(tipo, "UTF-8")}")
                 enviarFichajeAServidor(url)
             } else {
+                // Mostrar mensaje de error sin conexión
+                mostrarMensajeDinamico("No estás conectado a Internet", android.graphics.Color.RED)
                 Log.d("FichajeApp", "No hay conexión. Fichaje guardado localmente.")
             }
-        } ?: Toast.makeText(this, "Código inválido", Toast.LENGTH_SHORT).show()
+        } ?: mostrarMensajeDinamico("Código inválido", android.graphics.Color.RED)
     }
 
     // Comprobar conexión a internet
@@ -124,7 +155,7 @@ class MainActivity : AppCompatActivity() {
         handler.removeCallbacksAndMessages(null)
         handler.postDelayed({
             borrarCampoTexto()
-        }, 5000)
+        }, 15000)
     }
 
     // Función para borrar el campo de texto
@@ -133,6 +164,7 @@ class MainActivity : AppCompatActivity() {
         stringBuilder.clear()
     }
 
+    // Funcion que se encarga de enviar los fichajes al servidor y obtener respuesta
     private fun enviarFichajeAServidor(url: String) {
         Thread {
             try {
@@ -146,12 +178,23 @@ class MainActivity : AppCompatActivity() {
 
                     val respuesta = Gson().fromJson(responseText, RespuestaFichaje::class.java)
                     runOnUiThread {
-                        val mensaje = if (respuesta.message.isNullOrBlank())
-                            "Fichaje ${respuesta.cTipFic} correcto a las ${respuesta.hFichaje}"
-                        else "Error: ${respuesta.message}"
+                        val codigoEnviado = url.substringAfter("cEmpCppExt=").substringBefore("&")
 
-                        Toast.makeText(this, mensaje, Toast.LENGTH_LONG).show()
-                        Logs.registrar(this, mensaje)
+                        val mensajeVisual = if (respuesta.message.isNullOrBlank())
+                            "($codigoEnviado) ${respuesta.cTipFic} correcta a las ${respuesta.hFichaje}"
+                        else "($codigoEnviado) Fichaje Incorrecto"
+
+                        val mensajeVoz = if (respuesta.message.isNullOrBlank())
+                            "${respuesta.cTipFic} correcta a las ${respuesta.hFichaje}"
+                        else "Fichaje Incorrecto"
+
+                        if (respuesta.message.isNullOrBlank()) {
+                            mostrarMensajeDinamico(mensajeVisual, android.graphics.Color.GREEN, mensajeVoz)
+                        } else {
+                            mostrarMensajeDinamico(mensajeVisual, android.graphics.Color.RED, mensajeVoz)
+                        }
+
+                        Logs.registrar(this, mensajeVisual)
                     }
                 }
 
@@ -159,11 +202,22 @@ class MainActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 e.printStackTrace()
                 runOnUiThread {
-                    Toast.makeText(this, "Error de conexión al fichar", Toast.LENGTH_SHORT).show()
-                    Logs.registrar(this, "Error de conexión al fichar: ${e.localizedMessage}")
+                    val codigoEnviado = url.substringAfter("cEmpCppExt=").substringBefore("&")
+                    val errorMsgVisual = "($codigoEnviado) Error de conexión al fichar"
+                    val errorMsgVoz = "Error de conexión al fichar"
+                    mostrarMensajeDinamico(errorMsgVisual, android.graphics.Color.RED, errorMsgVoz)
+                    Logs.registrar(this, "$errorMsgVisual: ${e.localizedMessage}")
                 }
             }
         }.start()
+    }
+
+    override fun onDestroy() {
+        if (::textToSpeech.isInitialized) {
+            textToSpeech.stop()
+            textToSpeech.shutdown()
+        }
+        super.onDestroy()
     }
 }
 
@@ -176,3 +230,5 @@ data class RespuestaFichaje(
     val fFichaje: String?,
     val hFichaje: String?
 )
+
+
