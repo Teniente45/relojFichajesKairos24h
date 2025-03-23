@@ -8,15 +8,26 @@ import java.util.*
 
 object Logs {
 
+    /**
+     * Guarda un mensaje de log con marca de tiempo en un archivo local.
+     * Cada día se guarda en un archivo diferente con el nombre: log_yyyy-MM-dd.txt
+     */
     fun registrar(context: Context, mensaje: String) {
         try {
-            val timeStamp = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+            val fechaActual = Date()
+            val formatoHora = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+            val formatoArchivo = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+            val timeStamp = formatoHora.format(fechaActual)
+            val nombreArchivo = "log_${formatoArchivo.format(fechaActual)}.txt"
             val logLine = "$timeStamp - $mensaje\n"
-            val logFile = File(context.filesDir, "fichajes_log.txt")
-            val writer = FileWriter(logFile, true)
-            writer.append(logLine)
-            writer.flush()
-            writer.close()
+
+            val logFile = File(context.filesDir, nombreArchivo)
+
+            FileWriter(logFile, true).use { writer ->
+                writer.append(logLine)
+            }
+
         } catch (e: Exception) {
             e.printStackTrace()
         }

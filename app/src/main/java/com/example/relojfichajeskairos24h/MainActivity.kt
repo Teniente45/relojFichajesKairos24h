@@ -3,21 +3,16 @@ package com.example.relojfichajeskairos24h
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.speech.tts.TextToSpeech
-import java.util.Locale
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.Toast
+import android.widget.*
 import android.view.animation.LinearInterpolator
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
-import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
@@ -29,7 +24,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var textToSpeech: TextToSpeech
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var campoTexto: EditText
-    //private lateinit var dbHelper: EstructuraDB // Base de datos local
+    private lateinit var mensajeDinamico: TextView
 
     // Variable que almacena el número ingresado
     private val stringBuilder = StringBuilder()
@@ -47,22 +42,23 @@ class MainActivity : AppCompatActivity() {
 
         // Inicializar vistas y base de datos
         campoTexto = findViewById(R.id.campoTexto)
+        mensajeDinamico = findViewById(R.id.mensajeDinamico)
         val btnEntrada = findViewById<Button>(R.id.btn_entrada)
         val btnSalida = findViewById<Button>(R.id.btn_salida)
-        val mensajeDinamico = findViewById<TextView>(R.id.mensajeDinamico)
-        // dbHelper = EstructuraDB(this) // Inicialización de la base de datos
         val btnBorrarTeclado = findViewById<Button>(R.id.btnBorrarTeclado)
+        // dbHelper = EstructuraDB(this) // Inicialización de la base de datos
 
         // Botones numéricos
         listOf(
             R.id.btn0, R.id.btn1, R.id.btn2, R.id.btn3, R.id.btn4,
             R.id.btn5, R.id.btn6, R.id.btn7, R.id.btn8, R.id.btn9
         ).forEach { id ->
-            findViewById<Button>(id).setOnClickListener {
+            findViewById<Button>(id).setOnClickListener { view ->
+                val button = view as? Button ?: return@setOnClickListener
                 if (stringBuilder.length < 4) {
-                    stringBuilder.append(it.tag ?: (it as Button).text.toString())
+                    stringBuilder.append(button.tag ?: button.text.toString())
                     campoTexto.setText(stringBuilder.toString())
-                    animarBoton(it as Button)
+                    animarBoton(button)
                     resetearInactividad()
                 }
             }
@@ -93,7 +89,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun mostrarMensajeDinamico(texto: String, color: Int, textoParaVoz: String = texto) {
-        val mensajeDinamico = findViewById<TextView>(R.id.mensajeDinamico)
         mensajeDinamico.text = texto
         mensajeDinamico.setTextColor(color)
         mensajeDinamico.textSize = 20f
@@ -125,9 +120,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Comprobar conexión a internet
+    @Suppress("DEPRECATION")
     private fun hayConexionInternet(): Boolean {
-        val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        return cm.activeNetworkInfo?.isConnected == true
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkInfo = connectivityManager.activeNetworkInfo
+        return networkInfo != null && networkInfo.isConnected
     }
 
     // Obtener la hora actual en formato HH:mm:ss
@@ -142,9 +139,10 @@ class MainActivity : AppCompatActivity() {
         scaleX.duration = 400
         scaleY.duration = 400
         alpha.duration = 400
-        scaleX.interpolator = LinearInterpolator()
-        scaleY.interpolator = LinearInterpolator()
-        alpha.interpolator = LinearInterpolator()
+        val interpolator = LinearInterpolator()
+        scaleX.interpolator = interpolator
+        scaleY.interpolator = interpolator
+        alpha.interpolator = interpolator
         scaleX.start()
         scaleY.start()
         alpha.start()
@@ -188,11 +186,8 @@ class MainActivity : AppCompatActivity() {
                             "${respuesta.cTipFic} correcta a las ${respuesta.hFichaje}"
                         else "Fichaje Incorrecto"
 
-                        if (respuesta.message.isNullOrBlank()) {
-                            mostrarMensajeDinamico(mensajeVisual, android.graphics.Color.GREEN, mensajeVoz)
-                        } else {
-                            mostrarMensajeDinamico(mensajeVisual, android.graphics.Color.RED, mensajeVoz)
-                        }
+                        val color = if (respuesta.message.isNullOrBlank()) android.graphics.Color.GREEN else android.graphics.Color.RED
+                        mostrarMensajeDinamico(mensajeVisual, color, mensajeVoz)
 
                         Logs.registrar(this, mensajeVisual)
                     }
@@ -230,5 +225,3 @@ data class RespuestaFichaje(
     val fFichaje: String?,
     val hFichaje: String?
 )
-
-
