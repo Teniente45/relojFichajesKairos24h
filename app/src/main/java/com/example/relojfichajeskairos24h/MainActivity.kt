@@ -190,8 +190,12 @@ class MainActivity : AppCompatActivity() {
                         val codigoEnviado = url.substringAfter("cEmpCppExt=").substringBefore("&")
 
                         val voces = textToSpeech.voices
-                        val vozMasculina = voces.find { it.locale.language == "es" && it.name.contains("std-m", ignoreCase = true) }
-                        val vozFemenina = voces.find { it.locale.language == "es" && it.name.contains("std-f", ignoreCase = true) }
+                        val vozMasculina = voces.find {
+                            it.locale.language == "es" && (it.name.contains("male", ignoreCase = true) || it.name.contains("std-m", ignoreCase = true))
+                        }
+                        val vozFemenina = voces.find {
+                            it.locale.language == "es" && (it.name.contains("female", ignoreCase = true) || it.name.contains("std-f", ignoreCase = true))
+                        }
 
                         if (respuesta.cTipFic.equals("ENTRADA", ignoreCase = true)) {
                             if (vozMasculina != null) {
