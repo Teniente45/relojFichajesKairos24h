@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">relojFichajesKairos24h</string>
-    <string name="descripcion_logo">Logo de la empresa que realizó el reloj inteligente para fichar de Kairos24h</string>
+    <string name="descripcion_logo">Logo de la empresa cliente</string>
+    <string name="descripcion_empColaboradora">Logo de la empresa colaboradora</string>
+
 
     <!-- Texto del campo de texto -->
     <string name="hint_ingrese_numeros">Ingrese números</string>

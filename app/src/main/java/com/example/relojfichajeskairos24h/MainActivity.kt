@@ -2,6 +2,7 @@ package com.example.relojfichajeskairos24h
 
 import android.animation.ObjectAnimator
 import android.content.Context
+import android.graphics.Color
 import android.speech.tts.TextToSpeech
 import android.net.ConnectivityManager
 import android.os.Bundle
@@ -28,6 +29,13 @@ class MainActivity : AppCompatActivity() {
 
     // Variable que almacena el número ingresado
     private val stringBuilder = StringBuilder()
+    // Const para la duración de los mensajes emergentes
+    private val duracionMensajeMs = 10000L
+    // Colores del mensaje de alerta si es un error o acierto
+    companion object {
+        const val COLOR_INCORRECTO = Color.RED
+        const val COLOR_CORRECTO = Color.BLUE
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,6 +45,9 @@ class MainActivity : AppCompatActivity() {
         textToSpeech = TextToSpeech(this) { status ->
             if (status == TextToSpeech.SUCCESS) {
                 textToSpeech.language = Locale("es", "ES") // Español
+                textToSpeech.voices.forEach {
+                    Log.d("VocesDisponibles", "Nombre: ${it.name}, Locale: ${it.locale}")
+                }
             }
         }
 
@@ -100,7 +111,7 @@ class MainActivity : AppCompatActivity() {
         handler.removeCallbacksAndMessages(null)
         handler.postDelayed({
             mensajeDinamico.visibility = View.GONE
-        }, 15000)
+        }, duracionMensajeMs)
     }
 
     // Funcion encargada de enviar los fichajes al servidor
@@ -113,10 +124,10 @@ class MainActivity : AppCompatActivity() {
                 enviarFichajeAServidor(url)
             } else {
                 // Mostrar mensaje de error sin conexión
-                mostrarMensajeDinamico("No estás conectado a Internet", android.graphics.Color.RED)
+                mostrarMensajeDinamico("No estás conectado a Internet", COLOR_INCORRECTO)
                 Log.d("FichajeApp", "No hay conexión. Fichaje guardado localmente.")
             }
-        } ?: mostrarMensajeDinamico("Código inválido", android.graphics.Color.RED)
+        } ?: mostrarMensajeDinamico("Código no válido", COLOR_INCORRECTO)
     }
 
     // Comprobar conexión a internet
@@ -153,7 +164,7 @@ class MainActivity : AppCompatActivity() {
         handler.removeCallbacksAndMessages(null)
         handler.postDelayed({
             borrarCampoTexto()
-        }, 15000)
+        }, duracionMensajeMs)
     }
 
     // Función para borrar el campo de texto
@@ -178,15 +189,43 @@ class MainActivity : AppCompatActivity() {
                     runOnUiThread {
                         val codigoEnviado = url.substringAfter("cEmpCppExt=").substringBefore("&")
 
+                        val voces = textToSpeech.voices
+                        val vozMasculina = voces.find { it.locale.language == "es" && it.name.contains("std-m", ignoreCase = true) }
+                        val vozFemenina = voces.find { it.locale.language == "es" && it.name.contains("std-f", ignoreCase = true) }
+
+                        if (respuesta.cTipFic.equals("ENTRADA", ignoreCase = true)) {
+                            if (vozMasculina != null) {
+                                textToSpeech.voice = vozMasculina
+                                textToSpeech.setPitch(1.0f)
+                                Log.d("VozUsada", "Usando voz masculina real: ${vozMasculina.name}")
+                            } else {
+                                val voz = voces.find { it.name == "es-ES-SMTf00" }
+                                voz?.let { textToSpeech.voice = it }
+                                textToSpeech.setPitch(0.75f)
+                                Log.d("VozUsada", "Simulando voz masculina con pitch grave")
+                            }
+                        } else if (respuesta.cTipFic.equals("SALIDA", ignoreCase = true)) {
+                            if (vozFemenina != null) {
+                                textToSpeech.voice = vozFemenina
+                                textToSpeech.setPitch(1.0f)
+                                Log.d("VozUsada", "Usando voz femenina real: ${vozFemenina.name}")
+                            } else {
+                                val voz = voces.find { it.name == "es-ES-SMTf00" }
+                                voz?.let { textToSpeech.voice = it }
+                                textToSpeech.setPitch(1.25f)
+                                Log.d("VozUsada", "Simulando voz femenina con pitch agudo")
+                            }
+                        }
+
                         val mensajeVisual = if (respuesta.message.isNullOrBlank())
-                            "($codigoEnviado) ${respuesta.cTipFic} correcta a las ${respuesta.hFichaje}"
+                            "($codigoEnviado) ${respuesta.cTipFic} correcta a las ${respuesta.hFichaje}h"
                         else "($codigoEnviado) Fichaje Incorrecto"
 
                         val mensajeVoz = if (respuesta.message.isNullOrBlank())
-                            "${respuesta.cTipFic} correcta a las ${respuesta.hFichaje}"
+                            "${respuesta.cTipFic} correcta a las ${respuesta.hFichaje}horas"
                         else "Fichaje Incorrecto"
 
-                        val color = if (respuesta.message.isNullOrBlank()) android.graphics.Color.GREEN else android.graphics.Color.RED
+                        val color = if (respuesta.message.isNullOrBlank()) COLOR_CORRECTO else COLOR_INCORRECTO
                         mostrarMensajeDinamico(mensajeVisual, color, mensajeVoz)
 
                         Logs.registrar(this, mensajeVisual)
@@ -200,7 +239,7 @@ class MainActivity : AppCompatActivity() {
                     val codigoEnviado = url.substringAfter("cEmpCppExt=").substringBefore("&")
                     val errorMsgVisual = "($codigoEnviado) Error de conexión al fichar"
                     val errorMsgVoz = "Error de conexión al fichar"
-                    mostrarMensajeDinamico(errorMsgVisual, android.graphics.Color.RED, errorMsgVoz)
+                    mostrarMensajeDinamico(errorMsgVisual, COLOR_INCORRECTO, errorMsgVoz)
                     Logs.registrar(this, "$errorMsgVisual: ${e.localizedMessage}")
                 }
             }
