@@ -189,45 +189,51 @@ class MainActivity : AppCompatActivity() {
                     runOnUiThread {
                         val codigoEnviado = url.substringAfter("cEmpCppExt=").substringBefore("&")
 
-                        val voces = textToSpeech.voices
-                        val vozMasculina = voces.find {
-                            it.locale.language == "es" && (it.name.contains("male", ignoreCase = true) || it.name.contains("std-m", ignoreCase = true))
-                        }
-                        val vozFemenina = voces.find {
-                            it.locale.language == "es" && (it.name.contains("female", ignoreCase = true) || it.name.contains("std-f", ignoreCase = true))
-                        }
-
-                        if (respuesta.cTipFic.equals("ENTRADA", ignoreCase = true)) {
-                            if (vozMasculina != null) {
-                                textToSpeech.voice = vozMasculina
-                                textToSpeech.setPitch(1.0f)
-                                Log.d("VozUsada", "Usando voz masculina real: ${vozMasculina.name}")
-                            } else {
-                                val voz = voces.find { it.name == "es-ES-SMTf00" }
-                                voz?.let { textToSpeech.voice = it }
-                                textToSpeech.setPitch(0.75f)
-                                Log.d("VozUsada", "Simulando voz masculina con pitch grave")
-                            }
-                        } else if (respuesta.cTipFic.equals("SALIDA", ignoreCase = true)) {
-                            if (vozFemenina != null) {
-                                textToSpeech.voice = vozFemenina
-                                textToSpeech.setPitch(1.0f)
-                                Log.d("VozUsada", "Usando voz femenina real: ${vozFemenina.name}")
-                            } else {
-                                val voz = voces.find { it.name == "es-ES-SMTf00" }
-                                voz?.let { textToSpeech.voice = it }
-                                textToSpeech.setPitch(1.25f)
-                                Log.d("VozUsada", "Simulando voz femenina con pitch agudo")
-                            }
-                        }
-
                         val mensajeVisual = if (respuesta.message.isNullOrBlank())
                             "($codigoEnviado) ${respuesta.cTipFic} correcta a las ${respuesta.hFichaje}h"
                         else "($codigoEnviado) Fichaje Incorrecto"
 
-                        val mensajeVoz = if (respuesta.message.isNullOrBlank())
-                            "${respuesta.cTipFic} correcta a las ${respuesta.hFichaje}horas"
-                        else "Fichaje Incorrecto"
+                        val mensajeVoz = if (respuesta.message.isNullOrBlank()) {
+                            when (respuesta.cTipFic?.uppercase()) {
+                                "ENTRADA" -> {
+                                    val vozMasculina = textToSpeech.voices.find {
+                                        it.locale.language == "es" &&
+                                                (it.name.contains("male", ignoreCase = true) ||
+                                                        it.name.contains("std-m", ignoreCase = true))
+                                    }
+                                    if (vozMasculina != null) {
+                                        textToSpeech.voice = vozMasculina
+                                        textToSpeech.setPitch(1.0f)
+                                        Log.d("VozUsada", "Usando voz masculina real: ${vozMasculina.name}")
+                                    } else {
+                                        val voz = textToSpeech.voices.find { it.name == "es-ES-SMTf00" }
+                                        voz?.let { textToSpeech.voice = it }
+                                        textToSpeech.setPitch(0.75f)
+                                        Log.d("VozUsada", "Simulando voz masculina con pitch grave")
+                                    }
+                                }
+                                "SALIDA" -> {
+                                    val vozFemenina = textToSpeech.voices.find {
+                                        it.locale.language == "es" &&
+                                                (it.name.contains("female", ignoreCase = true) ||
+                                                        it.name.contains("std-f", ignoreCase = true))
+                                    }
+                                    if (vozFemenina != null) {
+                                        textToSpeech.voice = vozFemenina
+                                        textToSpeech.setPitch(1.0f)
+                                        Log.d("VozUsada", "Usando voz femenina real: ${vozFemenina.name}")
+                                    } else {
+                                        val voz = textToSpeech.voices.find { it.name == "es-ES-SMTf00" }
+                                        voz?.let { textToSpeech.voice = it }
+                                        textToSpeech.setPitch(1.25f)
+                                        Log.d("VozUsada", "Simulando voz femenina con pitch agudo")
+                                    }
+                                }
+                            }
+                            "${respuesta.cTipFic} correcta a las ${respuesta.hFichaje} horas"
+                        } else {
+                            "Fichaje Incorrecto"
+                        }
 
                         val color = if (respuesta.message.isNullOrBlank()) COLOR_CORRECTO else COLOR_INCORRECTO
                         mostrarMensajeDinamico(mensajeVisual, color, mensajeVoz)
