@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity() {
     private fun manejarCodigoEntradaSalida(codigo: String, tipo: String) {
         codigo.toIntOrNull()?.let {
             if (hayConexionInternet()) {
-                val url = BuildURL.setfichaje
+                val url = BuildURL.SETFICHAJE
                     .replace("cEmpCppExt=", "cEmpCppExt=${URLEncoder.encode(it.toString(), "UTF-8")}")
                     .replace("cTipFic=", "cTipFic=${URLEncoder.encode(tipo, "UTF-8")}")
                 enviarFichajeAServidor(url)
