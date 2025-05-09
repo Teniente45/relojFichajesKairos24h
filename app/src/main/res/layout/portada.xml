@@ -103,13 +103,13 @@
                 android:importantForAccessibility="yes"
                 android:inputType="none"
                 android:padding="12dp"
-                android:textSize="18sp" />
+                android:textSize="25sp" />
 
             <TextView
                 android:id="@+id/mensajeDinamico"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="0dp"
                 android:gravity="center"
                 android:text=""
                 android:textSize="30sp"

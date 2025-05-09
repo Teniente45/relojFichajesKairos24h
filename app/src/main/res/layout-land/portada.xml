@@ -109,7 +109,7 @@
                 android:importantForAccessibility="yes"
                 android:inputType="none"
                 android:padding="0dp"
-                android:textSize="18sp" />
+                android:textSize="25sp" />
 
             <TextView
                 android:id="@+id/mensajeDinamico"
@@ -124,7 +124,7 @@
             <GridLayout
                 android:layout_width="match_parent"
                 android:layout_height="372dp"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="0dp"
                 android:alignmentMode="alignMargins"
                 android:columnCount="3"
                 android:rowCount="4"
@@ -304,7 +304,7 @@
             <ImageView
                 android:id="@+id/logo2"
                 android:layout_width="match_parent"
-                android:layout_height="129dp"
+                android:layout_height="90dp"
                 android:layout_gravity="center_horizontal"
                 android:contentDescription="@string/descripcion_empColaboradora"
                 android:src="@drawable/logo_desarrolladora" />
