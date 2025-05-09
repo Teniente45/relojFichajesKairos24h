@@ -32,7 +32,7 @@
                 android:layout_height="@dimen/layoutHeightLogo"
                 android:layout_gravity="center_horizontal"
                 android:contentDescription="@string/descripcion_logo"
-                android:src="@drawable/logo_cliente" />
+                android:src="@drawable/logo_tragabuche" />
         </LinearLayout>
 
         <LinearLayout
@@ -45,47 +45,47 @@
             android:layout_marginStart="0dp"
             android:layout_marginEnd="0dp">
 
-            <!-- Botón de Entrada - A la Izquierda -->
             <LinearLayout
-                android:layout_width="400sp"
-                android:layout_height="match_parent">
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
 
                 <Button
                     android:id="@+id/btn_entrada"
-                    style="?android:attr/buttonBarButtonStyle"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginEnd="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
                     android:background="@drawable/round_button"
                     android:contentDescription="@string/btn_entrada"
                     android:gravity="center"
                     android:text="@string/btn_entrada"
+                    android:textAlignment="center"
                     android:textColor="@android:color/white"
-                    android:textSize="20dp"
+                    android:textSize="20sp"
                     tools:ignore="SpUsage" />
             </LinearLayout>
 
-            <Space
-                android:layout_width="90dp"
-                android:layout_height="match_parent" />
-
-            <!-- Botón de Salida - A la Derecha -->
             <LinearLayout
-                android:layout_width="400sp"
-                android:layout_height="match_parent">
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
 
                 <Button
                     android:id="@+id/btn_salida"
-                    style="?android:attr/buttonBarButtonStyle"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
                     android:background="@drawable/round_button"
                     android:contentDescription="@string/btn_salida"
                     android:gravity="center"
                     android:text="@string/btn_salida"
+                    android:textAlignment="center"
                     android:textColor="@android:color/white"
-                    android:textSize="20dp"
-                    android:layout_marginStart="0dp"
+                    android:textSize="20sp"
                     tools:ignore="SpUsage" />
             </LinearLayout>
         </LinearLayout>
@@ -295,7 +295,7 @@
         <LinearLayout
             android:id="@+id/containerLogo2"
             android:layout_width="match_parent"
-            android:layout_height="122dp"
+            android:layout_height="82dp"
             android:orientation="vertical"
             android:padding="0dp"
             android:layout_marginStart="16dp"
