@@ -10,7 +10,7 @@ object BuildURL {
                         "&cTipFic=" +
                         "&cFicOri=APP"
 
-    const val SETFICHAJE = HOST + ACTION + PARAMS
+    const val SETFICHAJE = DEMO + ACTION + PARAMS
 }
 
 
