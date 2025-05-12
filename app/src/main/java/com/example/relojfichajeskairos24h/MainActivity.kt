@@ -80,7 +80,62 @@ class MainActivity : AppCompatActivity() {
             resetearInactividad()
         }
 
+        // Nueva funcionalidad: mantener pulsado zona superior para salir
+        val zonaSuperior = findViewById<View>(R.id.logo1)
+        zonaSuperior.setOnTouchListener(object : View.OnTouchListener {
+            private var handler = Handler(Looper.getMainLooper())
+            private val longPressRunnable = Runnable {
+                mostrarDialogoConfirmacionSalida()
+            }
+
+            override fun onTouch(v: View?, event: android.view.MotionEvent?): Boolean {
+                when (event?.action) {
+                    android.view.MotionEvent.ACTION_DOWN -> handler.postDelayed(longPressRunnable, 6000)
+                    android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_CANCEL -> handler.removeCallbacks(longPressRunnable)
+                }
+                return true
+            }
+        })
+
         resetearInactividad()
+    }
+
+    private fun mostrarDialogoConfirmacionSalida() {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("¿Seguro que quieres salir?")
+            .setPositiveButton("Salir") { _, _ -> solicitarPinParaSalir() }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun solicitarPinParaSalir() {
+        val input = EditText(this)
+        input.inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_PASSWORD
+
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Introduce el PIN")
+            .setView(input)
+            .setPositiveButton("Aceptar") { dialog, _ ->
+                if (input.text.toString() == "1005") {
+                    dialog.dismiss()
+                    salirAlLauncher()
+                } else {
+                    dialog.dismiss()
+                    androidx.appcompat.app.AlertDialog.Builder(this)
+                        .setMessage("PIN incorrecto")
+                        .setPositiveButton("Aceptar", null)
+                        .show()
+                }
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun salirAlLauncher() {
+        val intent = android.content.Intent(android.content.Intent.ACTION_MAIN)
+        intent.addCategory(android.content.Intent.CATEGORY_HOME)
+        intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(intent)
     }
 
     private fun mostrarMensajeDinamico(texto: String, color: Int, nombreAudio: String? = null) {
