@@ -158,6 +158,7 @@ class MainActivity : AppCompatActivity() {
                 val url = BuildURL.SETFICHAJE
                     .replace("cEmpCppExt=", "cEmpCppExt=${URLEncoder.encode(it.toString(), "UTF-8")}")
                     .replace("cTipFic=", "cTipFic=${URLEncoder.encode(tipo, "UTF-8")}")
+                Log.d("FichajeApp", "URL generada para fichaje: $url")
                 enviarFichajeAServidor(url)
             } else {
                 mostrarMensajeDinamico("No estás conectado a Internet", COLOR_INCORRECTO, "no_internet")
@@ -206,6 +207,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun enviarFichajeAServidor(url: String) {
         Thread {
+            Log.d("FichajeApp", "Invocando URL al servidor: $url")
             try {
                 val connection = (URL(url).openConnection() as HttpURLConnection).apply {
                     requestMethod = "GET"
