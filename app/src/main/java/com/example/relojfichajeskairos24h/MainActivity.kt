@@ -253,6 +253,7 @@ class MainActivity : AppCompatActivity() {
                     val dbHelper = FichajesSQLiteHelper(this@MainActivity)
                     val jsonResponse = JSONObject(responseText)
                     dbHelper.insertarSiEsInformadoNo(jsonResponse)
+                    Log.d("SQLite", "Registro insertado: xFichaje=${jsonResponse.optString("xFichaje")}, cTipFic=${jsonResponse.optString("cTipFic")}")
 
                     val respuesta = Gson().fromJson(responseText, RespuestaFichaje::class.java)
 
