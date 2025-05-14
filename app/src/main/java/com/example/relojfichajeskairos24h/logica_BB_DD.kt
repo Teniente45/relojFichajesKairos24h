@@ -45,6 +45,8 @@ class FichajesSQLiteHelper(context: Context) : SQLiteOpenHelper(context, "fichaj
         val lInformado = json.optString("L_INFORMADO", "")
         val xFichaje = json.optString("xFichaje", "")
 
+        Log.d("SQLite", "Revisando si se puede insertar: L_INFORMADO=$lInformado, xFichaje=$xFichaje")
+
         if (lInformado == "N" && xFichaje.isNotEmpty()) {
             val values = ContentValues().apply {
                 put("xFichaje", xFichaje)

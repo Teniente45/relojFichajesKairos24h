@@ -40,7 +40,8 @@
  * // Log que informa que no se ha encontrado el archivo de audio especificado para reproducir
  * Log.e("Audio", "No se encontró el archivo de audio: $nombreArchivo")
  *
- *
+ * // Log que informa que informa de la base de datos, los regitros que tiene (Tiene que ejecutarse en modo debbug)
+ * Log.e("DB_DUMP")
  *
  *
  *

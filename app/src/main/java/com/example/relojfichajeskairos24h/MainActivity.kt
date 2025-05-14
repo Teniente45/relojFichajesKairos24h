@@ -201,6 +201,9 @@ class MainActivity : AppCompatActivity() {
         resetearInactividad()
         iniciarReintentosAutomaticos(this) // Activa la lógica de reintento cada 10 segundos
         Log.d("MainActivity", "Lógica de reintento automático iniciada correctamente.")
+
+        // Mostrar contenido de la base de datos 'informado' en Logcat
+        mostrarContenidoDeBaseDeDatos(this)
     }
 
     // Mostrar diálogo de confirmación para salir
@@ -476,3 +479,25 @@ data class RespuestaFichaje(
     val fFichaje: String?,
     val hFichaje: String?
 )
+    // Muestra todos los registros actuales de la tabla 'informado' en Logcat
+    fun mostrarContenidoDeBaseDeDatos(context: Context) {
+        val db = FichajesSQLiteHelper(context).readableDatabase
+        val cursor = db.rawQuery("SELECT * FROM informado", null)
+
+        if (cursor.count == 0) {
+            Log.d("DB_DUMP", "No hay registros en la tabla 'informado'")
+        } else {
+            while (cursor.moveToNext()) {
+                val id = cursor.getInt(cursor.getColumnIndexOrThrow("id"))
+                val xFichaje = cursor.getString(cursor.getColumnIndexOrThrow("xFichaje"))
+                val cTipFic = cursor.getString(cursor.getColumnIndexOrThrow("cTipFic"))
+                val fFichaje = cursor.getString(cursor.getColumnIndexOrThrow("fFichaje"))
+                val hFichaje = cursor.getString(cursor.getColumnIndexOrThrow("hFichaje"))
+                val lInformado = cursor.getString(cursor.getColumnIndexOrThrow("L_INFORMADO"))
+
+                Log.d("DB_DUMP", "id=$id | xFichaje=$xFichaje | cTipFic=$cTipFic | fFichaje=$fFichaje | hFichaje=$hFichaje | L_INFORMADO=$lInformado")
+            }
+        }
+
+        cursor.close()
+    }
