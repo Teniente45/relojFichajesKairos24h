@@ -22,13 +22,14 @@
                 android:orientation="vertical"
                 android:padding="0dp">
 
+            <!-- Estas propiedades serán sobreescritas en tiempo de ejecución desde Kotlin -->
             <ImageView
                 android:id="@+id/logo1"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/layoutHeightLogo"
-                android:layout_gravity="center_horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:contentDescription="@string/descripcion_logo"
-                android:src="@drawable/logo_tragabuche" />
+                android:tag="LOGO_CLIENTE" />
         </LinearLayout>
 
         <LinearLayout
@@ -291,13 +292,14 @@
             android:orientation="vertical"
             android:padding="0dp">
 
+            <!-- Estas propiedades serán sobreescritas en tiempo de ejecución desde Kotlin -->
             <ImageView
                 android:id="@+id/logo2"
-                android:layout_width="match_parent"
-                android:layout_height="129dp"
-                android:layout_gravity="center_horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:contentDescription="@string/descripcion_empColaboradora"
-                android:src="@drawable/logo_desarrolladora" />
+                android:tag="LOGO_DESARROLADORA" />
         </LinearLayout>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

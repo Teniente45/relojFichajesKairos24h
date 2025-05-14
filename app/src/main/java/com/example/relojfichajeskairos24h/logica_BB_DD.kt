@@ -1,5 +1,7 @@
 package com.example.relojfichajeskairos24h
 
+import com.example.relojfichajeskairos24h.BuildURL
+
 import android.os.Handler
 import android.os.Looper
 import okhttp3.Call
@@ -17,6 +19,7 @@ import android.util.Log
 
 // Clase SQLiteHelper para gestionar la base de datos local fichajes_pendientes
 class FichajesSQLiteHelper(context: Context) : SQLiteOpenHelper(context, "fichajes_pendientes", null, 1) {
+
     override fun onCreate(db: SQLiteDatabase) {
         // Crea la tabla 'informado' para almacenar fichajes no informados al servidor
         db.execSQL("""
@@ -70,6 +73,7 @@ fun iniciarReintentosAutomaticos(context: Context) {
             val cursor = db.rawQuery("SELECT * FROM informado", null)
 
             while (cursor.moveToNext()) {
+                // Extrae cada columna del registro pendiente
                 val id = cursor.getInt(cursor.getColumnIndexOrThrow("id"))
                 val xFichaje = cursor.getString(cursor.getColumnIndexOrThrow("xFichaje"))
                 val cTipFic = cursor.getString(cursor.getColumnIndexOrThrow("cTipFic"))
@@ -78,18 +82,18 @@ fun iniciarReintentosAutomaticos(context: Context) {
 
                 Log.d("ReintentoFichaje", "Preparando reenvío de fichaje con ID=$id")
 
-                // Construye la URL a partir de los datos del fichaje
-                val url = "https://demosetfichaje.kairos24h.es/index.php?r=citaRedWeb/crearFichajeExterno" +
+                // Construye la URL de fichaje usando la plantilla y los datos del registro
+                val url = BuildURL.HOST + BuildURL.ACTION +
                         "&xFichaje=$xFichaje&cTipFic=$cTipFic&fFichaje=$fFichaje&hFichaje=$hFichaje"
 
                 Log.d("ReintentoFichaje", "Invocando URL: $url")
 
                 val request = Request.Builder().url(url).build()
 
-                // Ejecuta la petición HTTP
+                // Ejecuta la petición HTTP en segundo plano
                 client.newCall(request).enqueue(object : Callback {
                     override fun onFailure(call: Call, e: IOException) {
-                        // Si falla, no se hace nada; se reintentará en el próximo ciclo
+                        // Si falla la conexión, no se hace nada (se reintentará después)
                     }
 
                     override fun onResponse(call: Call, response: Response) {
@@ -98,13 +102,13 @@ fun iniciarReintentosAutomaticos(context: Context) {
                             try {
                                 val json = JSONObject(body)
                                 val lInformado = json.optString("L_INFORMADO", "")
-                                // Si el servidor marca como informado (S o distinto de N), se borra de la tabla
+                                // Si el servidor marca el fichaje como informado (L_INFORMADO distinto de "N"), se elimina
                                 if (lInformado != "N") {
                                     Log.d("ReintentoFichaje", "L_INFORMADO != N → Eliminando ID=$id de la tabla informado")
                                     dbHelper.writableDatabase.delete("informado", "id = ?", arrayOf(id.toString()))
                                 }
                             } catch (_: Exception) {
-                                // Si hay error de parseo, se ignora y se reintentará después
+                                // Si falla el parseo, se ignora y se intentará de nuevo
                             }
                         }
                     }
@@ -112,10 +116,11 @@ fun iniciarReintentosAutomaticos(context: Context) {
             }
 
             cursor.close()
-            // Reprograma la tarea para que se ejecute de nuevo después del intervalo
+            // Reprograma la ejecución para dentro de 10 segundos
             handler.postDelayed(this, INTERVALO_REINTENTO)
         }
     }
 
+    // Inicia el primer ciclo de reintento
     handler.postDelayed(tarea, INTERVALO_REINTENTO)
 }

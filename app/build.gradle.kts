@@ -19,6 +19,9 @@ android {
     }
 
     buildTypes {
+        debug {
+            isDebuggable = true // Asegura que se pueda usar run-as en esta variante
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(

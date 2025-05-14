@@ -1,7 +1,5 @@
 package com.example.relojfichajeskairos24h
 
-import com.example.relojfichajeskairos24h.FichajesSQLiteHelper
-import org.json.JSONObject
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.media.MediaPlayer
@@ -10,6 +8,8 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.util.TypedValue
+import android.view.Gravity
 import android.view.View
 import android.view.animation.LinearInterpolator
 import android.widget.Button
@@ -18,6 +18,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.toColorInt
 import com.google.gson.Gson
+import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
@@ -55,6 +56,86 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.portada)
+
+        // Cargar imagen desde el objeto Imagenes
+        val logo1 = findViewById<android.widget.ImageView>(R.id.logo1)
+        val resourceName = Imagenes.LOGO_CLIENTE
+        val resId = resources.getIdentifier(resourceName, "drawable", packageName)
+        logo1.setImageResource(resId)
+
+        // Cargar imagen para logo2
+        val logo2 = findViewById<android.widget.ImageView>(R.id.logo2)
+        val resourceName2 = Imagenes.LOGO_DESARROLLADORA
+        val resId2 = resources.getIdentifier(resourceName2, "drawable", packageName)
+        logo2.setImageResource(resId2)
+
+
+        // Permitir cambiar entre propiedades verticales y horizontales de los logos
+        val usarVertical = resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT
+
+        fun String.toLayoutSize(): Int = when (this) {
+            "wrap_content" -> android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+            "match_parent" -> android.view.ViewGroup.LayoutParams.MATCH_PARENT
+            else -> this.replace("dp", "").toIntOrNull()?.let {
+                TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, it.toFloat(), resources.displayMetrics).toInt()
+            } ?: android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+        }
+
+        if (usarVertical) {
+            // Usar modelo centralizado basado en PropiedadesImagen para vertical
+            logo1.layoutParams = logo1.layoutParams.apply {
+                width = Imagenes.Vertical.LOGO_CLIENTE.width.toLayoutSize()
+                height = Imagenes.Vertical.LOGO_CLIENTE.height.toLayoutSize()
+            }
+            (logo1.layoutParams as? android.widget.LinearLayout.LayoutParams)?.gravity =
+                when (Imagenes.Vertical.LOGO_CLIENTE.gravity) {
+                    "center_horizontal" -> Gravity.CENTER_HORIZONTAL
+                    "center" -> Gravity.CENTER
+                    "start" -> Gravity.START
+                    "end" -> Gravity.END
+                    else -> Gravity.NO_GRAVITY
+                }
+
+            logo2.layoutParams = logo2.layoutParams.apply {
+                width = Imagenes.Vertical.LOGO_DESARROLLADORA.width.toLayoutSize()
+                height = Imagenes.Vertical.LOGO_DESARROLLADORA.height.toLayoutSize()
+            }
+            (logo2.layoutParams as? android.widget.LinearLayout.LayoutParams)?.gravity =
+                when (Imagenes.Vertical.LOGO_DESARROLLADORA.gravity) {
+                    "center_horizontal" -> Gravity.CENTER_HORIZONTAL
+                    "center" -> Gravity.CENTER
+                    "start" -> Gravity.START
+                    "end" -> Gravity.END
+                    else -> Gravity.NO_GRAVITY
+                }
+        } else {
+            // Usar modelo centralizado basado en PropiedadesImagen para horizontal
+            logo1.layoutParams = logo1.layoutParams.apply {
+                width = Imagenes.Horizontal.LOGO_CLIENTE.width.toLayoutSize()
+                height = Imagenes.Horizontal.LOGO_CLIENTE.height.toLayoutSize()
+            }
+            (logo1.layoutParams as? android.widget.LinearLayout.LayoutParams)?.gravity =
+                when (Imagenes.Horizontal.LOGO_CLIENTE.gravity) {
+                    "center_horizontal" -> Gravity.CENTER_HORIZONTAL
+                    "center" -> Gravity.CENTER
+                    "start" -> Gravity.START
+                    "end" -> Gravity.END
+                    else -> Gravity.NO_GRAVITY
+                }
+
+            logo2.layoutParams = logo2.layoutParams.apply {
+                width = Imagenes.Horizontal.LOGO_DESARROLLADORA.width.toLayoutSize()
+                height = Imagenes.Horizontal.LOGO_DESARROLLADORA.height.toLayoutSize()
+            }
+            (logo2.layoutParams as? android.widget.LinearLayout.LayoutParams)?.gravity =
+                when (Imagenes.Horizontal.LOGO_DESARROLLADORA.gravity) {
+                    "center_horizontal" -> Gravity.CENTER_HORIZONTAL
+                    "center" -> Gravity.CENTER
+                    "start" -> Gravity.START
+                    "end" -> Gravity.END
+                    else -> Gravity.NO_GRAVITY
+                }
+        }
 
         // Inicialización de vistas y botones
         campoTexto = findViewById(R.id.campoTexto)
@@ -118,6 +199,8 @@ class MainActivity : AppCompatActivity() {
 
         // Activar temporizador de limpieza de inactividad
         resetearInactividad()
+        iniciarReintentosAutomaticos(this) // Activa la lógica de reintento cada 10 segundos
+        Log.d("MainActivity", "Lógica de reintento automático iniciada correctamente.")
     }
 
     // Mostrar diálogo de confirmación para salir
@@ -309,6 +392,78 @@ class MainActivity : AppCompatActivity() {
         mediaPlayer?.release()
         mediaPlayer = null
         super.onDestroy()
+    }
+
+    // Manejar el cambio de configuración para aplicar las propiedades visuales correctas a los logos
+    override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
+        super.onConfigurationChanged(newConfig)
+
+        val usarVertical = newConfig.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT
+
+        val logo1 = findViewById<android.widget.ImageView>(R.id.logo1)
+        val logo2 = findViewById<android.widget.ImageView>(R.id.logo2)
+
+        fun String.toLayoutSize(): Int = when (this) {
+            "wrap_content" -> android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+            "match_parent" -> android.view.ViewGroup.LayoutParams.MATCH_PARENT
+            else -> this.replace("dp", "").toIntOrNull()?.let {
+                TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, it.toFloat(), resources.displayMetrics).toInt()
+            } ?: android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+        }
+
+        if (usarVertical) {
+            logo1.layoutParams = logo1.layoutParams.apply {
+                width = Imagenes.Vertical.LOGO_CLIENTE.width.toLayoutSize()
+                height = Imagenes.Vertical.LOGO_CLIENTE.height.toLayoutSize()
+            }
+            (logo1.layoutParams as? android.widget.LinearLayout.LayoutParams)?.gravity =
+                when (Imagenes.Vertical.LOGO_CLIENTE.gravity) {
+                    "center_horizontal" -> Gravity.CENTER_HORIZONTAL
+                    "center" -> Gravity.CENTER
+                    "start" -> Gravity.START
+                    "end" -> Gravity.END
+                    else -> Gravity.NO_GRAVITY
+                }
+
+            logo2.layoutParams = logo2.layoutParams.apply {
+                width = Imagenes.Vertical.LOGO_DESARROLLADORA.width.toLayoutSize()
+                height = Imagenes.Vertical.LOGO_DESARROLLADORA.height.toLayoutSize()
+            }
+            (logo2.layoutParams as? android.widget.LinearLayout.LayoutParams)?.gravity =
+                when (Imagenes.Vertical.LOGO_DESARROLLADORA.gravity) {
+                    "center_horizontal" -> Gravity.CENTER_HORIZONTAL
+                    "center" -> Gravity.CENTER
+                    "start" -> Gravity.START
+                    "end" -> Gravity.END
+                    else -> Gravity.NO_GRAVITY
+                }
+        } else {
+            logo1.layoutParams = logo1.layoutParams.apply {
+                width = Imagenes.Horizontal.LOGO_CLIENTE.width.toLayoutSize()
+                height = Imagenes.Horizontal.LOGO_CLIENTE.height.toLayoutSize()
+            }
+            (logo1.layoutParams as? android.widget.LinearLayout.LayoutParams)?.gravity =
+                when (Imagenes.Horizontal.LOGO_CLIENTE.gravity) {
+                    "center_horizontal" -> Gravity.CENTER_HORIZONTAL
+                    "center" -> Gravity.CENTER
+                    "start" -> Gravity.START
+                    "end" -> Gravity.END
+                    else -> Gravity.NO_GRAVITY
+                }
+
+            logo2.layoutParams = logo2.layoutParams.apply {
+                width = Imagenes.Horizontal.LOGO_DESARROLLADORA.width.toLayoutSize()
+                height = Imagenes.Horizontal.LOGO_DESARROLLADORA.height.toLayoutSize()
+            }
+            (logo2.layoutParams as? android.widget.LinearLayout.LayoutParams)?.gravity =
+                when (Imagenes.Horizontal.LOGO_DESARROLLADORA.gravity) {
+                    "center_horizontal" -> Gravity.CENTER_HORIZONTAL
+                    "center" -> Gravity.CENTER
+                    "start" -> Gravity.START
+                    "end" -> Gravity.END
+                    else -> Gravity.NO_GRAVITY
+                }
+        }
     }
 }
 
