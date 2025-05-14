@@ -58,6 +58,8 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
     // Para el Inspector de bases de datos
     implementation ("androidx.sqlite:sqlite:2.1.0")
 

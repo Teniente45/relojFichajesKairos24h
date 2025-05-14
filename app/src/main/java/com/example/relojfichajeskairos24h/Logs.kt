@@ -1,35 +1,21 @@
-package com.example.relojfichajeskairos24h
-
-import android.content.Context
-import java.io.File
-import java.io.FileWriter
-import java.text.SimpleDateFormat
-import java.util.*
-
-object Logs {
-
-    /**
-     * Guarda un mensaje de log con marca de tiempo en un archivo local.
-     * Cada día se guarda en un archivo diferente con el nombre: log_yyyy-MM-dd.txt
-     */
-    fun registrar(context: Context, mensaje: String) {
-        try {
-            val fechaActual = Date()
-            val formatoHora = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-            val formatoArchivo = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-
-            val timeStamp = formatoHora.format(fechaActual)
-            val nombreArchivo = "log_${formatoArchivo.format(fechaActual)}.txt"
-            val logLine = "$timeStamp - $mensaje\n"
-
-            val logFile = File(context.filesDir, nombreArchivo)
-
-            FileWriter(logFile, true).use { writer ->
-                writer.append(logLine)
-            }
-
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-}
+/**
+ * *******************************************
+ * *********** logica_BB_DD.kt ***************
+ * *******************************************
+ * // Log que indica que se está preparando el reenvío de un fichaje con su ID
+ * Log.d("ReintentoFichaje", "Preparando reenvío de fichaje con ID=$id")
+ *
+ * // Log que muestra la URL que será invocada para reenviar el fichaje
+ * Log.d("ReintentoFichaje", "Invocando URL: $url")
+ *
+ * // Log que imprime el cuerpo de la respuesta recibida del servidor tras invocar la URL
+ * Log.d("ReintentoFichaje", "Respuesta recibida: $body")
+ *
+ * // Log que confirma que el servidor ha marcado el fichaje como informado (L_INFORMADO distinto de "N") y por tanto se elimina de la base de datos
+ * Log.d("ReintentoFichaje", "L_INFORMADO != N → Eliminando ID=$id de la tabla informado")
+ *
+ *
+ *
+ *
+ *
+ */

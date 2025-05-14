@@ -1,105 +1,121 @@
 package com.example.relojfichajeskairos24h
 
+import android.os.Handler
+import android.os.Looper
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import java.io.IOException
 import android.content.ContentValues
 import android.content.Context
-import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import org.json.JSONObject
+import android.util.Log
 
-class BaseDeDatosHelper(context: Context) :
-    SQLiteOpenHelper(context, "envios_pendientes.db", null, 1) {
-
+// Clase SQLiteHelper para gestionar la base de datos local fichajes_pendientes
+class FichajesSQLiteHelper(context: Context) : SQLiteOpenHelper(context, "fichajes_pendientes", null, 1) {
     override fun onCreate(db: SQLiteDatabase) {
-        db.execSQL(
-            """
-            CREATE TABLE IF NOT EXISTS pendientes (
+        // Crea la tabla 'informado' para almacenar fichajes no informados al servidor
+        db.execSQL("""
+            CREATE TABLE IF NOT EXISTS informado (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                url TEXT NOT NULL,
-                fecha TEXT,
-                estado TEXT DEFAULT 'pendiente'
+                xFichaje TEXT,
+                cTipFic TEXT,
+                fFichaje TEXT,
+                hFichaje TEXT,
+                L_INFORMADO TEXT
             )
-            """.trimIndent()
-        )
+        """.trimIndent())
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        db.execSQL("DROP TABLE IF EXISTS pendientes")
+        // Elimina y vuelve a crear la tabla si hay cambios en la versión de la BBDD
+        db.execSQL("DROP TABLE IF EXISTS informado")
         onCreate(db)
     }
 
-    fun insertarFichajeFallido(url: String): Long {
-        val db = writableDatabase
-        val fechaActual = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+    // Inserta un fichaje en la tabla sólo si L_INFORMADO == "N" y xFichaje no está vacío
+    fun insertarSiEsInformadoNo(json: JSONObject) {
+        val lInformado = json.optString("L_INFORMADO", "")
+        val xFichaje = json.optString("xFichaje", "")
 
-        val valores = ContentValues().apply {
-            put("url", url)
-            put("fecha", fechaActual)
-            put("estado", "pendiente")
+        if (lInformado == "N" && xFichaje.isNotEmpty()) {
+            val values = ContentValues().apply {
+                put("xFichaje", xFichaje)
+                put("cTipFic", json.optString("cTipFic", ""))
+                put("fFichaje", json.optString("fFichaje", ""))
+                put("hFichaje", json.optString("hFichaje", ""))
+                put("L_INFORMADO", lInformado)
+            }
+            writableDatabase.insert("informado", null, values)
         }
-
-        val resultado = db.insert("pendientes", null, valores)
-        db.close()
-        return resultado
     }
+}
 
-    fun obtenerPendientes(): List<Map<String, String>> {
-        val db = readableDatabase
-        val lista = mutableListOf<Map<String, String>>()
-        val cursor: Cursor = db.rawQuery("SELECT * FROM pendientes WHERE estado = 'pendiente'", null)
+// Cliente HTTP y handler para ejecución periódica
+private val client = OkHttpClient()
+private val handler = Handler(Looper.getMainLooper())
+private const val INTERVALO_REINTENTO = 10_000L // Intervalo de reintento: 10 segundos
 
-        if (cursor.moveToFirst()) {
-            do {
-                val item = mapOf(
-                    "id" to cursor.getInt(cursor.getColumnIndexOrThrow("id")).toString(),
-                    "url" to cursor.getString(cursor.getColumnIndexOrThrow("url")),
-                    "fecha" to cursor.getString(cursor.getColumnIndexOrThrow("fecha")),
-                    "estado" to cursor.getString(cursor.getColumnIndexOrThrow("estado"))
-                )
-                lista.add(item)
-            } while (cursor.moveToNext())
-        }
+// Inicia un bucle que cada 10 segundos reintenta enviar los fichajes no informados al servidor
+fun iniciarReintentosAutomaticos(context: Context) {
+    val dbHelper = FichajesSQLiteHelper(context)
 
-        cursor.close()
-        db.close()
-        return lista
-    }
+    val tarea = object : Runnable {
+        override fun run() {
+            val db = dbHelper.readableDatabase
+            val cursor = db.rawQuery("SELECT * FROM informado", null)
 
-    fun eliminarPorId(id: Int): Int {
-        val db = writableDatabase
-        val filasAfectadas = db.delete("pendientes", "id = ?", arrayOf(id.toString()))
-        db.close()
-        return filasAfectadas
-    }
-
-    fun eliminarTodos(): Int {
-        val db = writableDatabase
-        val filasAfectadas = db.delete("pendientes", null, null)
-        db.close()
-        return filasAfectadas
-    }
-
-    fun reenviarPendientes(context: Context, callbackEnvio: (url: String) -> Boolean) {
-        val db = writableDatabase
-        val cursor = db.rawQuery("SELECT * FROM pendientes WHERE estado = 'pendiente'", null)
-
-        if (cursor.moveToFirst()) {
-            do {
+            while (cursor.moveToNext()) {
                 val id = cursor.getInt(cursor.getColumnIndexOrThrow("id"))
-                val url = cursor.getString(cursor.getColumnIndexOrThrow("url"))
+                val xFichaje = cursor.getString(cursor.getColumnIndexOrThrow("xFichaje"))
+                val cTipFic = cursor.getString(cursor.getColumnIndexOrThrow("cTipFic"))
+                val fFichaje = cursor.getString(cursor.getColumnIndexOrThrow("fFichaje"))
+                val hFichaje = cursor.getString(cursor.getColumnIndexOrThrow("hFichaje"))
 
-                val enviado = callbackEnvio(url)
+                Log.d("ReintentoFichaje", "Preparando reenvío de fichaje con ID=$id")
 
-                if (enviado) {
-                    db.delete("pendientes", "id = ?", arrayOf(id.toString()))
-                }
+                // Construye la URL a partir de los datos del fichaje
+                val url = "https://demosetfichaje.kairos24h.es/index.php?r=citaRedWeb/crearFichajeExterno" +
+                        "&xFichaje=$xFichaje&cTipFic=$cTipFic&fFichaje=$fFichaje&hFichaje=$hFichaje"
 
-            } while (cursor.moveToNext())
+                Log.d("ReintentoFichaje", "Invocando URL: $url")
+
+                val request = Request.Builder().url(url).build()
+
+                // Ejecuta la petición HTTP
+                client.newCall(request).enqueue(object : Callback {
+                    override fun onFailure(call: Call, e: IOException) {
+                        // Si falla, no se hace nada; se reintentará en el próximo ciclo
+                    }
+
+                    override fun onResponse(call: Call, response: Response) {
+                        response.body?.string()?.let { body ->
+                            Log.d("ReintentoFichaje", "Respuesta recibida: $body")
+                            try {
+                                val json = JSONObject(body)
+                                val lInformado = json.optString("L_INFORMADO", "")
+                                // Si el servidor marca como informado (S o distinto de N), se borra de la tabla
+                                if (lInformado != "N") {
+                                    Log.d("ReintentoFichaje", "L_INFORMADO != N → Eliminando ID=$id de la tabla informado")
+                                    dbHelper.writableDatabase.delete("informado", "id = ?", arrayOf(id.toString()))
+                                }
+                            } catch (_: Exception) {
+                                // Si hay error de parseo, se ignora y se reintentará después
+                            }
+                        }
+                    }
+                })
+            }
+
+            cursor.close()
+            // Reprograma la tarea para que se ejecute de nuevo después del intervalo
+            handler.postDelayed(this, INTERVALO_REINTENTO)
         }
-
-        cursor.close()
-        db.close()
     }
+
+    handler.postDelayed(tarea, INTERVALO_REINTENTO)
 }

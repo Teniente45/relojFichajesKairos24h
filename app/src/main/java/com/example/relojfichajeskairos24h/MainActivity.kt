@@ -1,5 +1,7 @@
 package com.example.relojfichajeskairos24h
 
+import com.example.relojfichajeskairos24h.FichajesSQLiteHelper
+import org.json.JSONObject
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.media.MediaPlayer
@@ -23,17 +25,29 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+// Actividad principal de la aplicación de fichaje Kairos24h
 class MainActivity : AppCompatActivity() {
 
+    // Handler para manejar temporizadores en el hilo principal
     private val handler = Handler(Looper.getMainLooper())
+
+    // Campo de texto donde se introduce el código de fichaje
     private lateinit var campoTexto: EditText
+
+    // Texto dinámico que muestra mensajes al usuario
     private lateinit var mensajeDinamico: TextView
+
+    // Reproductor de audio para efectos de sonido al fichar
     private var mediaPlayer: MediaPlayer? = null
 
+    // Acumulador para recoger los números introducidos por el usuario
     private val stringBuilder = StringBuilder()
+
+    // Duración del mensaje en pantalla en milisegundos
     private val duracionMensajeMs = 10000L
 
     companion object {
+        // Colores personalizados para los mensajes visuales
         val COLOR_INCORRECTO = "#DC143C".toColorInt()
         val COLOR_CORRECTO = "#4F8ABA".toColorInt()
     }
@@ -42,12 +56,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.portada)
 
+        // Inicialización de vistas y botones
         campoTexto = findViewById(R.id.campoTexto)
         mensajeDinamico = findViewById(R.id.mensajeDinamico)
         val btnEntrada = findViewById<Button>(R.id.btn_entrada)
         val btnSalida = findViewById<Button>(R.id.btn_salida)
         val btnBorrarTeclado = findViewById<Button>(R.id.btnBorrarTeclado)
 
+        // Asignar funcionalidad a los botones numéricos
         listOf(
             R.id.btn0, R.id.btn1, R.id.btn2, R.id.btn3, R.id.btn4,
             R.id.btn5, R.id.btn6, R.id.btn7, R.id.btn8, R.id.btn9
@@ -63,24 +79,27 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // Borrar el campo de texto
         btnBorrarTeclado.setOnClickListener {
             borrarCampoTexto()
             resetearInactividad()
         }
 
+        // Fichaje de entrada
         btnEntrada.setOnClickListener {
             manejarCodigoEntradaSalida(stringBuilder.toString(), "ENTRADA")
             borrarCampoTexto()
             resetearInactividad()
         }
 
+        // Fichaje de salida
         btnSalida.setOnClickListener {
             manejarCodigoEntradaSalida(stringBuilder.toString(), "SALIDA")
             borrarCampoTexto()
             resetearInactividad()
         }
 
-        // Nueva funcionalidad: mantener pulsado zona superior para salir
+        // Detectar pulsación larga para salir de la app desde el logo
         val zonaSuperior = findViewById<View>(R.id.logo1)
         zonaSuperior.setOnTouchListener(object : View.OnTouchListener {
             private var handler = Handler(Looper.getMainLooper())
@@ -97,9 +116,11 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
+        // Activar temporizador de limpieza de inactividad
         resetearInactividad()
     }
 
+    // Mostrar diálogo de confirmación para salir
     private fun mostrarDialogoConfirmacionSalida() {
         androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle("¿Seguro que quieres salir?")
@@ -108,6 +129,7 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+    // Solicitar PIN para confirmar salida de la app
     private fun solicitarPinParaSalir() {
         val input = EditText(this)
         input.inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_PASSWORD
@@ -131,6 +153,7 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+    // Enviar al launcher principal del dispositivo
     private fun salirAlLauncher() {
         val intent = android.content.Intent(android.content.Intent.ACTION_MAIN)
         intent.addCategory(android.content.Intent.CATEGORY_HOME)
@@ -138,6 +161,7 @@ class MainActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
+    // Mostrar mensaje animado en la interfaz con texto, color y audio
     private fun mostrarMensajeDinamico(texto: String, color: Int, nombreAudio: String? = null) {
         mensajeDinamico.text = texto
         mensajeDinamico.setTextColor(color)
@@ -152,9 +176,11 @@ class MainActivity : AppCompatActivity() {
         }, duracionMensajeMs)
     }
 
+    // Lógica para manejar un código numérico y tipo de fichaje
     private fun manejarCodigoEntradaSalida(codigo: String, tipo: String) {
         codigo.toIntOrNull()?.let {
             if (hayConexionInternet()) {
+                // Construir URL para el fichaje
                 val url = BuildURL.SETFICHAJE
                     .replace("cEmpCppExt=", "cEmpCppExt=${URLEncoder.encode(it.toString(), "UTF-8")}")
                     .replace("cTipFic=", "cTipFic=${URLEncoder.encode(tipo, "UTF-8")}")
@@ -167,6 +193,7 @@ class MainActivity : AppCompatActivity() {
         } ?: mostrarMensajeDinamico("Código no válido", COLOR_INCORRECTO)
     }
 
+    // Comprobar si hay conexión a internet activa
     @Suppress("DEPRECATION")
     private fun hayConexionInternet(): Boolean {
         val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -174,9 +201,11 @@ class MainActivity : AppCompatActivity() {
         return networkInfo != null && networkInfo.isConnected
     }
 
+    // Obtener la hora actual del sistema
     private fun obtenerHoraActual(): String =
         SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
 
+    // Animar visualmente el botón pulsado
     private fun animarBoton(button: Button) {
         val scaleX = ObjectAnimator.ofFloat(button, "scaleX", 1f, 1.5f, 1f)
         val scaleY = ObjectAnimator.ofFloat(button, "scaleY", 1f, 1.5f, 1f)
@@ -193,6 +222,7 @@ class MainActivity : AppCompatActivity() {
         alpha.start()
     }
 
+    // Reiniciar el temporizador de limpieza de inactividad
     private fun resetearInactividad() {
         handler.removeCallbacksAndMessages(null)
         handler.postDelayed({
@@ -200,11 +230,13 @@ class MainActivity : AppCompatActivity() {
         }, duracionMensajeMs)
     }
 
+    // Limpiar el campo de texto y reiniciar acumulador
     private fun borrarCampoTexto() {
         campoTexto.setText("")
         stringBuilder.clear()
     }
 
+    // Enviar la URL generada al servidor usando HttpURLConnection
     private fun enviarFichajeAServidor(url: String) {
         Thread {
             Log.d("FichajeApp", "Invocando URL al servidor: $url")
@@ -217,9 +249,15 @@ class MainActivity : AppCompatActivity() {
                     val responseText = stream.bufferedReader().use { it.readText() }
                     Log.d("FichajeApp", "Respuesta del servidor: $responseText")
 
+                    // Guardar respuesta en base de datos si corresponde
+                    val dbHelper = FichajesSQLiteHelper(this@MainActivity)
+                    val jsonResponse = JSONObject(responseText)
+                    dbHelper.insertarSiEsInformadoNo(jsonResponse)
+
                     val respuesta = Gson().fromJson(responseText, RespuestaFichaje::class.java)
 
                     runOnUiThread {
+                        // Procesar la respuesta y mostrar mensaje visual
                         val codigoEnviado = url.substringAfter("cEmpCppExt=").substringBefore("&")
                         val esFichajeCorrecto = respuesta.message.isNullOrBlank()
                         val tipo = respuesta.cTipFic?.uppercase()
@@ -238,8 +276,6 @@ class MainActivity : AppCompatActivity() {
 
                         val color = if (esFichajeCorrecto) COLOR_CORRECTO else COLOR_INCORRECTO
                         mostrarMensajeDinamico(mensajeVisual, color, nombreAudio)
-
-                        Logs.registrar(this, mensajeVisual)
                     }
                 }
 
@@ -250,12 +286,12 @@ class MainActivity : AppCompatActivity() {
                     val codigoEnviado = url.substringAfter("cEmpCppExt=").substringBefore("&")
                     val errorMsgVisual = "($codigoEnviado) Error de conexión al fichar"
                     mostrarMensajeDinamico(errorMsgVisual, COLOR_INCORRECTO, "no_internet")
-                    Logs.registrar(this, "$errorMsgVisual: ${e.localizedMessage}")
                 }
             }
         }.start()
     }
 
+    // Reproduce un archivo de audio si existe
     private fun reproducirAudio(nombreArchivo: String) {
         val resId = resources.getIdentifier(nombreArchivo, "raw", packageName)
         if (resId != 0) {
@@ -267,6 +303,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Libera recursos del reproductor al cerrar la actividad
     override fun onDestroy() {
         mediaPlayer?.release()
         mediaPlayer = null
@@ -274,6 +311,7 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
+// Modelo de datos para interpretar la respuesta del servidor al fichar
 data class RespuestaFichaje(
     val code: Int,
     val message: String?,
