@@ -338,7 +338,8 @@ class MainActivity : AppCompatActivity() {
                     // Guardar respuesta en base de datos si corresponde
                     val dbHelper = FichajesSQLiteHelper(this@MainActivity)
                     val jsonResponse = JSONObject(responseText)
-                    dbHelper.insertarSiEsInformadoNo(jsonResponse)
+                    val codigoEmpleado = url.substringAfter("cEmpCppExt=").substringBefore("&")
+                    dbHelper.insertarFichajeDesdeJson(jsonResponse, codigoEmpleado)
                     Log.d("SQLite", "Registro insertado: xFichaje=${jsonResponse.optString("xFichaje")}, cTipFic=${jsonResponse.optString("cTipFic")}")
 
                     val respuesta = Gson().fromJson(responseText, RespuestaFichaje::class.java)
@@ -479,23 +480,24 @@ data class RespuestaFichaje(
     val fFichaje: String?,
     val hFichaje: String?
 )
-    // Muestra todos los registros actuales de la tabla 'informado' en Logcat
+    // Muestra todos los registros actuales de la tabla 'l_informados' en Logcat
     fun mostrarContenidoDeBaseDeDatos(context: Context) {
         val db = FichajesSQLiteHelper(context).readableDatabase
-        val cursor = db.rawQuery("SELECT * FROM informado", null)
+        val cursor = db.rawQuery("SELECT * FROM l_informados", null)
 
         if (cursor.count == 0) {
-            Log.d("DB_DUMP", "No hay registros en la tabla 'informado'")
+            Log.d("DB_DUMP", "No hay registros en la tabla 'l_informados'")
         } else {
             while (cursor.moveToNext()) {
                 val id = cursor.getInt(cursor.getColumnIndexOrThrow("id"))
+                val cEmpCppExt = cursor.getString(cursor.getColumnIndexOrThrow("cEmpCppExt"))
                 val xFichaje = cursor.getString(cursor.getColumnIndexOrThrow("xFichaje"))
                 val cTipFic = cursor.getString(cursor.getColumnIndexOrThrow("cTipFic"))
                 val fFichaje = cursor.getString(cursor.getColumnIndexOrThrow("fFichaje"))
                 val hFichaje = cursor.getString(cursor.getColumnIndexOrThrow("hFichaje"))
                 val lInformado = cursor.getString(cursor.getColumnIndexOrThrow("L_INFORMADO"))
 
-                Log.d("DB_DUMP", "id=$id | xFichaje=$xFichaje | cTipFic=$cTipFic | fFichaje=$fFichaje | hFichaje=$hFichaje | L_INFORMADO=$lInformado")
+                Log.d("DB_DUMP", "id=$id | cEmpCppExt=$cEmpCppExt | xFichaje=$xFichaje | cTipFic=$cTipFic | fFichaje=$fFichaje | hFichaje=$hFichaje | L_INFORMADO=$lInformado")
             }
         }
 

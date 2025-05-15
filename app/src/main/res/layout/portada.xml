@@ -18,18 +18,20 @@
         <LinearLayout
                 android:id="@+id/containerLogo1"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/layoutHeightLogo"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="0dp">
 
             <!-- Estas propiedades serán sobreescritas en tiempo de ejecución desde Kotlin -->
             <ImageView
                 android:id="@+id/logo1"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:contentDescription="@string/descripcion_logo"
-                android:tag="LOGO_CLIENTE" />
+                android:tag="LOGO_CLIENTE"
+                android:adjustViewBounds="true"
+                android:maxHeight="100dp" />
         </LinearLayout>
 
         <LinearLayout
@@ -42,13 +44,14 @@
 
             <!-- Botón de Entrada - A la Izquierda -->
             <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent">
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
 
                 <Button
                     android:id="@+id/btn_entrada"
                     style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="250dp"
+                    android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginEnd="25dp"
                     android:background="@drawable/round_button"
@@ -62,13 +65,14 @@
 
             <!-- Botón de Salida - A la Derecha -->
             <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent">
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
 
                 <Button
                     android:id="@+id/btn_salida"
                     style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="@dimen/layoutWidthEntradaYSalida"
+                    android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@drawable/round_button"
                     android:contentDescription="@string/btn_salida"
@@ -288,18 +292,19 @@
         <LinearLayout
             android:id="@+id/containerLogo2"
             android:layout_width="match_parent"
-            android:layout_height="122dp"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="0dp">
 
-            <!-- Estas propiedades serán sobreescritas en tiempo de ejecución desde Kotlin -->
             <ImageView
                 android:id="@+id/logo2"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:contentDescription="@string/descripcion_empColaboradora"
-                android:tag="LOGO_DESARROLADORA" />
+                android:tag="LOGO_DESARROLLADORA"
+                android:adjustViewBounds="true"
+                android:maxHeight="100dp" />
         </LinearLayout>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

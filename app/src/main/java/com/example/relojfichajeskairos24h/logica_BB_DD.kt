@@ -1,30 +1,30 @@
 package com.example.relojfichajeskairos24h
 
-import com.example.relojfichajeskairos24h.BuildURL
-
+import android.content.ContentValues
+import android.content.Context
+import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteOpenHelper
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
-import java.io.IOException
-import android.content.ContentValues
-import android.content.Context
-import android.database.sqlite.SQLiteDatabase
-import android.database.sqlite.SQLiteOpenHelper
 import org.json.JSONObject
-import android.util.Log
+import java.io.File
+import java.io.IOException
 
 // Clase SQLiteHelper para gestionar la base de datos local fichajes_pendientes
-class FichajesSQLiteHelper(context: Context) : SQLiteOpenHelper(context, "fichajes_pendientes", null, 1) {
+class FichajesSQLiteHelper(context: Context) : SQLiteOpenHelper(context, "fichajes_pendientes", null, 2) {
 
     override fun onCreate(db: SQLiteDatabase) {
-        // Crea la tabla 'informado' para almacenar fichajes no informados al servidor
+        // Crea la tabla 'l_informados' para almacenar todos los fichajes
         db.execSQL("""
-            CREATE TABLE IF NOT EXISTS informado (
+            CREATE TABLE IF NOT EXISTS l_informados (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                cEmpCppExt TEXT,
                 xFichaje TEXT,
                 cTipFic TEXT,
                 fFichaje TEXT,
@@ -35,27 +35,29 @@ class FichajesSQLiteHelper(context: Context) : SQLiteOpenHelper(context, "fichaj
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        // Elimina y vuelve a crear la tabla si hay cambios en la versión de la BBDD
-        db.execSQL("DROP TABLE IF EXISTS informado")
-        onCreate(db)
+        if (oldVersion < 2) {
+            db.execSQL("ALTER TABLE l_informados ADD COLUMN cEmpCppExt TEXT")
+        }
     }
 
-    // Inserta un fichaje en la tabla sólo si L_INFORMADO == "N" y xFichaje no está vacío
-    fun insertarSiEsInformadoNo(json: JSONObject) {
+    // Inserta un fichaje en la tabla l_informados
+    fun insertarFichajeDesdeJson(json: JSONObject, codigoEmpleado: String) {
         val lInformado = json.optString("L_INFORMADO", "")
         val xFichaje = json.optString("xFichaje", "")
 
-        Log.d("SQLite", "Revisando si se puede insertar: L_INFORMADO=$lInformado, xFichaje=$xFichaje")
+        Log.d("SQLite", "Insertando en tabla l_informados: L_INFORMADO=$lInformado, xFichaje=$xFichaje")
 
-        if (lInformado == "N" && xFichaje.isNotEmpty()) {
+        if (xFichaje.isNotEmpty()) {
             val values = ContentValues().apply {
+                put("cEmpCppExt", codigoEmpleado)
                 put("xFichaje", xFichaje)
                 put("cTipFic", json.optString("cTipFic", ""))
                 put("fFichaje", json.optString("fFichaje", ""))
                 put("hFichaje", json.optString("hFichaje", ""))
                 put("L_INFORMADO", lInformado)
             }
-            writableDatabase.insert("informado", null, values)
+
+            writableDatabase.insert("l_informados", null, values)
         }
     }
 }
@@ -72,11 +74,12 @@ fun iniciarReintentosAutomaticos(context: Context) {
     val tarea = object : Runnable {
         override fun run() {
             val db = dbHelper.readableDatabase
-            val cursor = db.rawQuery("SELECT * FROM informado", null)
+            val cursor = db.rawQuery("SELECT * FROM l_informados WHERE L_INFORMADO = 'N'", null)
 
             while (cursor.moveToNext()) {
                 // Extrae cada columna del registro pendiente
                 val id = cursor.getInt(cursor.getColumnIndexOrThrow("id"))
+                val cEmpCppExt = cursor.getString(cursor.getColumnIndexOrThrow("cEmpCppExt"))
                 val xFichaje = cursor.getString(cursor.getColumnIndexOrThrow("xFichaje"))
                 val cTipFic = cursor.getString(cursor.getColumnIndexOrThrow("cTipFic"))
                 val fFichaje = cursor.getString(cursor.getColumnIndexOrThrow("fFichaje"))
@@ -86,7 +89,7 @@ fun iniciarReintentosAutomaticos(context: Context) {
 
                 // Construye la URL de fichaje usando la plantilla y los datos del registro
                 val url = BuildURL.HOST + BuildURL.ACTION +
-                        "&xFichaje=$xFichaje&cTipFic=$cTipFic&fFichaje=$fFichaje&hFichaje=$hFichaje"
+                        "&cEmpCppExt=$cEmpCppExt&xFichaje=$xFichaje&cTipFic=$cTipFic&fFichaje=$fFichaje&hFichaje=$hFichaje"
 
                 Log.d("ReintentoFichaje", "Invocando URL: $url")
 
@@ -104,10 +107,14 @@ fun iniciarReintentosAutomaticos(context: Context) {
                             try {
                                 val json = JSONObject(body)
                                 val lInformado = json.optString("L_INFORMADO", "")
-                                // Si el servidor marca el fichaje como informado (L_INFORMADO distinto de "N"), se elimina
-                                if (lInformado != "N") {
-                                    Log.d("ReintentoFichaje", "L_INFORMADO != N → Eliminando ID=$id de la tabla informado")
-                                    dbHelper.writableDatabase.delete("informado", "id = ?", arrayOf(id.toString()))
+                                // Si el servidor marca el fichaje como informado (L_INFORMADO = "S"), se actualiza el registro
+                                if (lInformado == "S") {
+                                    Log.d("ReintentoFichaje", "L_INFORMADO = S → Actualizando ID=$id a informado")
+
+                                    val update = ContentValues().apply {
+                                        put("L_INFORMADO", "S")
+                                    }
+                                    dbHelper.writableDatabase.update("l_informados", update, "id = ?", arrayOf(id.toString()))
                                 }
                             } catch (_: Exception) {
                                 // Si falla el parseo, se ignora y se intentará de nuevo
@@ -125,4 +132,49 @@ fun iniciarReintentosAutomaticos(context: Context) {
 
     // Inicia el primer ciclo de reintento
     handler.postDelayed(tarea, INTERVALO_REINTENTO)
+}
+
+// Exporta toda la tabla l_informados a un archivo .csv accesible desde almacenamiento externo privado
+// Ruta aproximada en el dispositivo: /storage/emulated/0/Android/data/com.example.relojfichajeskairos24h/files/l_informados.csv
+// El archivo puede abrirse con Excel
+fun exportarInformados(context: Context): File? {
+    return exportarTablaAArchivoExterno(context)
+}
+
+// Función auxiliar que realiza la exportación de la tabla l_informados
+private fun exportarTablaAArchivoExterno(context: Context): File? {
+    val tabla = "l_informados"
+    return try {
+        val dbHelper = FichajesSQLiteHelper(context)
+        val db = dbHelper.readableDatabase
+        val cursor = db.rawQuery("SELECT * FROM $tabla", null)
+
+        val registros = StringBuilder()
+        registros.append("ID,cEmpCppExt,xFichaje,cTipFic,fFichaje,hFichaje,L_INFORMADO\n")
+
+        while (cursor.moveToNext()) {
+            val id = cursor.getInt(cursor.getColumnIndexOrThrow("id"))
+            val cEmpCppExt = cursor.getString(cursor.getColumnIndexOrThrow("cEmpCppExt"))
+            val xFichaje = cursor.getString(cursor.getColumnIndexOrThrow("xFichaje"))
+            val cTipFic = cursor.getString(cursor.getColumnIndexOrThrow("cTipFic"))
+            val fFichaje = cursor.getString(cursor.getColumnIndexOrThrow("fFichaje"))
+            val hFichaje = cursor.getString(cursor.getColumnIndexOrThrow("hFichaje"))
+            val lInformado = cursor.getString(cursor.getColumnIndexOrThrow("L_INFORMADO"))
+
+            registros.append("$id,$cEmpCppExt,$xFichaje,$cTipFic,$fFichaje,$hFichaje,$lInformado\n")
+        }
+
+        cursor.close()
+
+        val exportDir = context.getExternalFilesDir(null)
+        val fecha = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(java.util.Date())
+        val archivo = File(exportDir, "${tabla}_$fecha.csv")
+        archivo.writeText(registros.toString())
+
+        Log.d("EXPORTACION", "Archivo generado en: ${archivo.absolutePath}")
+        archivo
+    } catch (e: Exception) {
+        Log.e("EXPORTACION", "Error al exportar la tabla $tabla: ${e.message}")
+        null
+    }
 }
