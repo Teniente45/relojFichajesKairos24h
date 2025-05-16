@@ -13,23 +13,19 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:paddingBottom="10dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp">
+        android:paddingBottom="10dp">
 
         <LinearLayout
-                android:id="@+id/containerLogo1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="0dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp">
+            android:id="@+id/containerLogo1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="0dp">
 
-            <!-- Estas propiedades serán sobreescritas dinámicamente desde Kotlin -->
+            <!-- Estas propiedades serán sobreescritas en tiempo de ejecución desde Kotlin -->
             <ImageView
                 android:id="@+id/logo1"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:contentDescription="@string/descripcion_logo"
@@ -45,68 +41,73 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center"
-            android:layout_marginStart="0dp"
-            android:layout_marginEnd="0dp">
+            android:baselineAligned="false">
 
+            <!-- Botón de Entrada - A la Izquierda -->
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="center">
+                tools:ignore="ExtraText">
 
                 <Button
                     android:id="@+id/btn_entrada"
+                    style="?android:attr/buttonBarButtonStyle"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="8dp"
-                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="25dp"
                     android:background="@drawable/round_button"
                     android:contentDescription="@string/btn_entrada"
                     android:gravity="center"
                     android:text="@string/btn_entrada"
-                    android:textAlignment="center"
-                    android:textColor="@android:color/white"
-                    android:textSize="20sp"
-                    tools:ignore="SpUsage" />
+                    android:textColor="#FAFAFA"
+                    app:autoSizeMaxTextSize="36sp"
+                    app:autoSizeMinTextSize="12sp"
+                    app:autoSizeStepGranularity="2sp"
+                    app:autoSizeTextType="uniform"
+                    tools:ignore="TextContrastCheck" />
             </LinearLayout>
 
+            <!-- Botón de Salida - A la Derecha -->
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="center">
+                android:layout_height="match_parent"
+                android:layout_weight="1">
 
                 <Button
                     android:id="@+id/btn_salida"
+                    style="?android:attr/buttonBarButtonStyle"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="8dp"
-                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="25dp"
                     android:background="@drawable/round_button"
                     android:contentDescription="@string/btn_salida"
                     android:gravity="center"
                     android:text="@string/btn_salida"
-                    android:textAlignment="center"
-                    android:textColor="@android:color/white"
-                    android:textSize="20sp"
-                    tools:ignore="SpUsage" />
+                    android:textColor="#FAFAFA"
+                    app:autoSizeMaxTextSize="36sp"
+                    app:autoSizeMinTextSize="12sp"
+                    app:autoSizeStepGranularity="2sp"
+                    app:autoSizeTextType="uniform"
+                    tools:ignore="TextContrastCheck" />
             </LinearLayout>
         </LinearLayout>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:gravity="center_horizontal"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
 
             <EditText
                 android:id="@+id/campoTexto"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="40dp"
+                android:layout_height="50dp"
                 android:autofillHints="phone"
                 android:background="@android:drawable/editbox_background_normal"
                 android:focusable="false"
@@ -114,40 +115,50 @@
                 android:hint="@string/hint_ingrese_numeros"
                 android:importantForAccessibility="yes"
                 android:inputType="none"
-                android:padding="0dp"
-                android:textSize="25sp" />
+                android:padding="12dp"
+                android:textColor="#000000"
+                app:autoSizeMaxTextSize="36sp"
+                app:autoSizeMinTextSize="12sp"
+                app:autoSizeStepGranularity="2sp"
+                app:autoSizeTextType="uniform"
+                tools:ignore="TextContrastCheck" />
 
             <TextView
                 android:id="@+id/mensajeDinamico"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="0dp"
                 android:gravity="center"
                 android:text=""
-                android:textSize="30sp"
-                android:visibility="gone" />
+                app:autoSizeTextType="uniform"
+                app:autoSizeMinTextSize="14sp"
+                app:autoSizeMaxTextSize="40sp"
+                app:autoSizeStepGranularity="2sp"
+                android:visibility="gone"
+                android:textColor="#000000" />
 
             <GridLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="2"
-                android:layout_marginTop="0dp"
+                android:layout_marginTop="30dp"
+                android:layout_weight="1"
                 android:alignmentMode="alignMargins"
                 android:columnCount="3"
                 android:rowCount="4"
                 tools:ignore="NestedWeights">
 
                 <!-- Botones redondos -->
-
                 <Button
                     android:id="@+id/btn1"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    android:layout_row="0"
                     android:layout_rowWeight="1"
-                    android:layout_column="0"
                     android:layout_columnWeight="1"
                     android:layout_margin="@dimen/layoutMarginButtonsNumericos"
+                    app:autoSizeMaxTextSize="36sp"
+                    app:autoSizeMinTextSize="12sp"
+                    app:autoSizeStepGranularity="2sp"
+                    app:autoSizeTextType="uniform"
                     android:background="@drawable/round_button"
                     android:contentDescription="@string/btn_1"
                     android:text="@string/btn_1"
@@ -162,6 +173,10 @@
                     android:layout_rowWeight="1"
                     android:layout_columnWeight="1"
                     android:layout_margin="@dimen/layoutMarginButtonsNumericos"
+                    app:autoSizeMaxTextSize="36sp"
+                    app:autoSizeMinTextSize="12sp"
+                    app:autoSizeStepGranularity="2sp"
+                    app:autoSizeTextType="uniform"
                     android:background="@drawable/round_button"
                     android:contentDescription="@string/btn_2"
                     android:text="@string/btn_2"
@@ -176,6 +191,10 @@
                     android:layout_rowWeight="1"
                     android:layout_columnWeight="1"
                     android:layout_margin="@dimen/layoutMarginButtonsNumericos"
+                    app:autoSizeMaxTextSize="36sp"
+                    app:autoSizeMinTextSize="12sp"
+                    app:autoSizeStepGranularity="2sp"
+                    app:autoSizeTextType="uniform"
                     android:background="@drawable/round_button"
                     android:contentDescription="@string/btn_3"
                     android:text="@string/btn_3"
@@ -190,6 +209,10 @@
                     android:layout_rowWeight="1"
                     android:layout_columnWeight="1"
                     android:layout_margin="@dimen/layoutMarginButtonsNumericos"
+                    app:autoSizeMaxTextSize="36sp"
+                    app:autoSizeMinTextSize="12sp"
+                    app:autoSizeStepGranularity="2sp"
+                    app:autoSizeTextType="uniform"
                     android:background="@drawable/round_button"
                     android:contentDescription="@string/btn_4"
                     android:text="@string/btn_4"
@@ -204,6 +227,10 @@
                     android:layout_rowWeight="1"
                     android:layout_columnWeight="1"
                     android:layout_margin="@dimen/layoutMarginButtonsNumericos"
+                    app:autoSizeMaxTextSize="36sp"
+                    app:autoSizeMinTextSize="12sp"
+                    app:autoSizeStepGranularity="2sp"
+                    app:autoSizeTextType="uniform"
                     android:background="@drawable/round_button"
                     android:contentDescription="@string/btn_5"
                     android:text="@string/btn_5"
@@ -218,6 +245,10 @@
                     android:layout_rowWeight="1"
                     android:layout_columnWeight="1"
                     android:layout_margin="@dimen/layoutMarginButtonsNumericos"
+                    app:autoSizeMaxTextSize="36sp"
+                    app:autoSizeMinTextSize="12sp"
+                    app:autoSizeStepGranularity="2sp"
+                    app:autoSizeTextType="uniform"
                     android:background="@drawable/round_button"
                     android:contentDescription="@string/btn_6"
                     android:text="@string/btn_6"
@@ -232,6 +263,10 @@
                     android:layout_rowWeight="1"
                     android:layout_columnWeight="1"
                     android:layout_margin="@dimen/layoutMarginButtonsNumericos"
+                    app:autoSizeMaxTextSize="36sp"
+                    app:autoSizeMinTextSize="12sp"
+                    app:autoSizeStepGranularity="2sp"
+                    app:autoSizeTextType="uniform"
                     android:background="@drawable/round_button"
                     android:contentDescription="@string/btn_7"
                     android:text="@string/btn_7"
@@ -246,6 +281,10 @@
                     android:layout_rowWeight="1"
                     android:layout_columnWeight="1"
                     android:layout_margin="@dimen/layoutMarginButtonsNumericos"
+                    app:autoSizeMaxTextSize="36sp"
+                    app:autoSizeMinTextSize="12sp"
+                    app:autoSizeStepGranularity="2sp"
+                    app:autoSizeTextType="uniform"
                     android:background="@drawable/round_button"
                     android:contentDescription="@string/btn_8"
                     android:text="@string/btn_8"
@@ -260,6 +299,10 @@
                     android:layout_rowWeight="1"
                     android:layout_columnWeight="1"
                     android:layout_margin="@dimen/layoutMarginButtonsNumericos"
+                    app:autoSizeMaxTextSize="36sp"
+                    app:autoSizeMinTextSize="12sp"
+                    app:autoSizeStepGranularity="2sp"
+                    app:autoSizeTextType="uniform"
                     android:background="@drawable/round_button"
                     android:contentDescription="@string/btn_9"
                     android:text="@string/btn_9"
@@ -274,6 +317,10 @@
                     android:layout_rowWeight="1"
                     android:layout_columnWeight="1"
                     android:layout_margin="@dimen/layoutMarginButtonsNumericos"
+                    app:autoSizeMaxTextSize="36sp"
+                    app:autoSizeMinTextSize="12sp"
+                    app:autoSizeStepGranularity="2sp"
+                    app:autoSizeTextType="uniform"
                     android:background="@drawable/round_button"
                     android:contentDescription="@string/btn_0"
                     android:text="@string/btn_0"
@@ -282,6 +329,7 @@
                     tools:ignore="SpUsage" />
 
                 <!-- Botón "Borrar" (no redondo) -->
+                <!-- Cambiado a sp para texto -->
                 <Button
                     android:id="@+id/btnBorrarTeclado"
                     android:layout_width="0dp"
@@ -294,8 +342,11 @@
                     android:contentDescription="@string/btn_borrar"
                     android:text="@string/btn_borrar"
                     android:textColor="@android:color/white"
-                    android:textSize="30dp"
-                    android:layout_weight="1"
+                    android:textSize="30sp"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMinTextSize="12sp"
+                    app:autoSizeMaxTextSize="36sp"
+                    app:autoSizeStepGranularity="2sp"
                     tools:ignore="SpUsage" />
             </GridLayout>
         </LinearLayout>
@@ -305,14 +356,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="0dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp">
+            android:padding="0dp">
 
-            <!-- Estas propiedades serán sobreescritas dinámicamente desde Kotlin -->
             <ImageView
                 android:id="@+id/logo2"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:contentDescription="@string/descripcion_empColaboradora"
