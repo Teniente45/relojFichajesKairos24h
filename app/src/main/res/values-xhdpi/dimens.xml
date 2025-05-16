@@ -1,9 +1,9 @@
 <resources>
-    <dimen name="button_width">80dp</dimen>
-    <dimen name="button_widthSalidaEntrada">40dp</dimen>
-    <dimen name="button_heightSalidaEntrada">60dp</dimen>
-    <dimen name="buttonNumerico">36dp</dimen>
-    <dimen name="layoutWidthEntradaYSalida">50dp</dimen>
-    <dimen name="layoutMarginButtonsNumericos">8dp</dimen>
-    <dimen name="layoutHeightLogo">30dp</dimen>
+    <dimen name="button_width">88dp</dimen>
+    <dimen name="button_widthSalidaEntrada">50dp</dimen>
+    <dimen name="button_heightSalidaEntrada">66dp</dimen>
+    <dimen name="buttonNumerico">38sp</dimen>
+    <dimen name="layoutWidthEntradaYSalida">60dp</dimen>
+    <dimen name="layoutMarginButtonsNumericos">10dp</dimen>
+    <dimen name="layoutHeightLogo">36dp</dimen>
 </resources>
