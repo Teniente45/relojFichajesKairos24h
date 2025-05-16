@@ -2,17 +2,36 @@
  * *******************************************
  * *********** logica_BB_DD.kt ***************
  * *******************************************
- * // Log que indica que se está preparando el reenvío de un fichaje con su ID
+ *
+ * // Log para verificar que se va a insertar un nuevo fichaje en la base de datos local
+ * Log.d("SQLite", "Insertando en tabla l_informados: L_INFORMADO=$lInformado, xFichaje=$xFichaje")
+ *
+ * // Log que indica que se ha añadido la nueva columna 'cEmpCppExt' a la tabla l_informados
+ * Log.d("modificacionBBDD", "Columna cEmpCppExt añadida a l_informados")
+ *
+ * // Log que indica que la tabla l_informados no existía y ha sido creada en onUpgrade
+ * Log.d("modificacionBBDD", "Tabla l_informados no existía, creada desde onUpgrade")
+ *
+ * // Log que indica que se ha iniciado correctamente la lógica de reintento automático
+ * Log.d("FichajeApp", "Lógica de reintento automático iniciada correctamente.")
+ *
+ * // Log que informa que se va a intentar reenviar un fichaje no informado
  * Log.d("ReintentoFichaje", "Preparando reenvío de fichaje con ID=$id")
  *
- * // Log que muestra la URL que será invocada para reenviar el fichaje
+ * // Log que muestra la URL generada para reenviar un fichaje pendiente
  * Log.d("ReintentoFichaje", "Invocando URL: $url")
  *
- * // Log que imprime el cuerpo de la respuesta recibida del servidor tras invocar la URL
+ * // Log que muestra la respuesta del servidor tras intentar reenviar un fichaje
  * Log.d("ReintentoFichaje", "Respuesta recibida: $body")
  *
- * // Log que confirma que el servidor ha marcado el fichaje como informado (L_INFORMADO distinto de "N") y por tanto se elimina de la base de datos
- * Log.d("ReintentoFichaje", "L_INFORMADO != N → Eliminando ID=$id de la tabla informado")
+ * // Log que informa que un fichaje ha sido actualizado como informado (L_INFORMADO = "S")
+ * Log.d("ReintentoFichaje", "L_INFORMADO = S → Actualizando ID=$id a informado")
+ *
+ * // Log que informa que el archivo CSV fue generado correctamente con la ruta del archivo
+ * Log.d("EXPORTACION", "Archivo generado en: ${archivo.absolutePath}")
+ *
+ * // Log que informa si hubo un error exportando la tabla
+ * Log.e("EXPORTACION", "Error al exportar la tabla $tabla: ${e.message}")
  *
  *
  * *******************************************

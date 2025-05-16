@@ -36,7 +36,20 @@ class FichajesSQLiteHelper(context: Context) : SQLiteOpenHelper(context, "fichaj
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         if (oldVersion < 2) {
-            db.execSQL("ALTER TABLE l_informados ADD COLUMN cEmpCppExt TEXT")
+            val cursor = db.rawQuery(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='l_informados'",
+                null
+            )
+            val exists = cursor.count > 0
+            cursor.close()
+
+            if (exists) {
+                db.execSQL("ALTER TABLE l_informados ADD COLUMN cEmpCppExt TEXT")
+                Log.d("modificacionBBDD", "Columna cEmpCppExt añadida a l_informados")
+            } else {
+                onCreate(db)
+                Log.d("modificacionBBDD", "Tabla l_informados no existía, creada desde onUpgrade")
+            }
         }
     }
 
