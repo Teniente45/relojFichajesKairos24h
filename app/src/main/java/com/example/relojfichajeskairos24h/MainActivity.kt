@@ -95,6 +95,9 @@ class MainActivity : AppCompatActivity() {
                     "end" -> Gravity.END
                     else -> Gravity.NO_GRAVITY
                 }
+            // Añadir márgenes superior e inferior de 10sp a logo1
+            val topBottomMarginPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 10f, resources.displayMetrics).toInt()
+            (logo1.layoutParams as? android.widget.LinearLayout.LayoutParams)?.setMargins(0, topBottomMarginPx, 0, topBottomMarginPx)
 
             logo2.layoutParams = logo2.layoutParams.apply {
                 width = Imagenes.Vertical.LOGO_DESARROLLADORA.width.toLayoutSize()
@@ -122,6 +125,9 @@ class MainActivity : AppCompatActivity() {
                     "end" -> Gravity.END
                     else -> Gravity.NO_GRAVITY
                 }
+            // Añadir márgenes superior e inferior de 10sp a logo1
+            val topBottomMarginPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 10f, resources.displayMetrics).toInt()
+            (logo1.layoutParams as? android.widget.LinearLayout.LayoutParams)?.setMargins(0, topBottomMarginPx, 0, topBottomMarginPx)
 
             logo2.layoutParams = logo2.layoutParams.apply {
                 width = Imagenes.Horizontal.LOGO_DESARROLLADORA.width.toLayoutSize()
