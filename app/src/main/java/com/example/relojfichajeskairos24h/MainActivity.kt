@@ -1,4 +1,9 @@
+
 package com.example.relojfichajeskairos24h
+
+import android.view.WindowManager
+
+import android.app.ActivityManager
 
 import android.animation.ObjectAnimator
 import android.content.Context
@@ -56,6 +61,33 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.portada)
+
+        // Ocultar barra de navegación y de estado (modo inmersivo)
+        window.decorView.systemUiVisibility = (
+            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            or View.SYSTEM_UI_FLAG_FULLSCREEN
+            or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+            or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+            or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        )
+
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN
+        )
+
+
+        // Revisar si debe iniciar en modo kiosco tras reinicio
+        val preferencias = getSharedPreferences("prefs_kiosco", Context.MODE_PRIVATE)
+        val modoKioscoActivo = preferencias.getBoolean("activar_kiosco", false)
+        if (modoKioscoActivo && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+            if (activityManager.lockTaskModeState == ActivityManager.LOCK_TASK_MODE_NONE) {
+                startLockTask()
+                Log.d("MainActivity", "Modo kiosco iniciado tras reinicio.")
+            }
+        }
 
         // Cargar imagen desde el objeto Imagenes
         val logo1 = findViewById<android.widget.ImageView>(R.id.logo1)
