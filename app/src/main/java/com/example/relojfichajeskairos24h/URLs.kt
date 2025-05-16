@@ -36,16 +36,30 @@ object Imagenes {
     data class PropiedadesImagen(
         val width: String,
         val height: String,
-        val gravity: String
+        val gravity: String,
+        val marginTop: String = "0sp",
+        val marginBottom: String = "0sp"
     )
 
     object Vertical {
-        val LOGO_CLIENTE = PropiedadesImagen("match_parent", "wrap_content", "center_horizontal")
+        val LOGO_CLIENTE = PropiedadesImagen(
+            width = "match_parent",
+            height = "wrap_content",
+            gravity = "center_horizontal",
+            marginTop = "10sp",
+            marginBottom = "10sp"
+        )
         val LOGO_DESARROLLADORA = PropiedadesImagen("match_parent", "wrap_content", "center_horizontal")
     }
 
     object Horizontal {
-        val LOGO_CLIENTE = PropiedadesImagen("match_parent", "wrap_content", "center_horizontal")
+        val LOGO_CLIENTE = PropiedadesImagen(
+            width = "match_parent",
+            height = "wrap_content",
+            gravity = "center_horizontal",
+            marginTop = "10sp",
+            marginBottom = "10sp"
+        )
         val LOGO_DESARROLLADORA = PropiedadesImagen("match_parent", "wrap_content", "center_horizontal")
     }
 }

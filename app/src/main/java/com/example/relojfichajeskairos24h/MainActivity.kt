@@ -80,24 +80,25 @@ class MainActivity : AppCompatActivity() {
                 TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, it.toFloat(), resources.displayMetrics).toInt()
             } ?: android.view.ViewGroup.LayoutParams.WRAP_CONTENT
         }
+        // toPixelSize moved to class scope below
 
         if (usarVertical) {
-            // Usar modelo centralizado basado en PropiedadesImagen para vertical
             logo1.layoutParams = logo1.layoutParams.apply {
                 width = Imagenes.Vertical.LOGO_CLIENTE.width.toLayoutSize()
                 height = Imagenes.Vertical.LOGO_CLIENTE.height.toLayoutSize()
             }
-            (logo1.layoutParams as? android.widget.LinearLayout.LayoutParams)?.gravity =
-                when (Imagenes.Vertical.LOGO_CLIENTE.gravity) {
+            (logo1.layoutParams as? android.widget.LinearLayout.LayoutParams)?.apply {
+                gravity = when (Imagenes.Vertical.LOGO_CLIENTE.gravity) {
                     "center_horizontal" -> Gravity.CENTER_HORIZONTAL
                     "center" -> Gravity.CENTER
                     "start" -> Gravity.START
                     "end" -> Gravity.END
                     else -> Gravity.NO_GRAVITY
                 }
-            // Añadir márgenes superior e inferior de 10sp a logo1
-            val topBottomMarginPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 10f, resources.displayMetrics).toInt()
-            (logo1.layoutParams as? android.widget.LinearLayout.LayoutParams)?.setMargins(0, topBottomMarginPx, 0, topBottomMarginPx)
+                val marginTopPx = Imagenes.Vertical.LOGO_CLIENTE.marginTop.toPixelSize()
+                val marginBottomPx = Imagenes.Vertical.LOGO_CLIENTE.marginBottom.toPixelSize()
+                setMargins(0, marginTopPx, 0, marginBottomPx)
+            }
 
             logo2.layoutParams = logo2.layoutParams.apply {
                 width = Imagenes.Vertical.LOGO_DESARROLLADORA.width.toLayoutSize()
@@ -112,22 +113,22 @@ class MainActivity : AppCompatActivity() {
                     else -> Gravity.NO_GRAVITY
                 }
         } else {
-            // Usar modelo centralizado basado en PropiedadesImagen para horizontal
             logo1.layoutParams = logo1.layoutParams.apply {
                 width = Imagenes.Horizontal.LOGO_CLIENTE.width.toLayoutSize()
                 height = Imagenes.Horizontal.LOGO_CLIENTE.height.toLayoutSize()
             }
-            (logo1.layoutParams as? android.widget.LinearLayout.LayoutParams)?.gravity =
-                when (Imagenes.Horizontal.LOGO_CLIENTE.gravity) {
+            (logo1.layoutParams as? android.widget.LinearLayout.LayoutParams)?.apply {
+                gravity = when (Imagenes.Horizontal.LOGO_CLIENTE.gravity) {
                     "center_horizontal" -> Gravity.CENTER_HORIZONTAL
                     "center" -> Gravity.CENTER
                     "start" -> Gravity.START
                     "end" -> Gravity.END
                     else -> Gravity.NO_GRAVITY
                 }
-            // Añadir márgenes superior e inferior de 10sp a logo1
-            val topBottomMarginPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 10f, resources.displayMetrics).toInt()
-            (logo1.layoutParams as? android.widget.LinearLayout.LayoutParams)?.setMargins(0, topBottomMarginPx, 0, topBottomMarginPx)
+                val marginTopPx = Imagenes.Horizontal.LOGO_CLIENTE.marginTop.toPixelSize()
+                val marginBottomPx = Imagenes.Horizontal.LOGO_CLIENTE.marginBottom.toPixelSize()
+                setMargins(0, marginTopPx, 0, marginBottomPx)
+            }
 
             logo2.layoutParams = logo2.layoutParams.apply {
                 width = Imagenes.Horizontal.LOGO_DESARROLLADORA.width.toLayoutSize()
@@ -404,6 +405,16 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
+    // Función de extensión movida al nivel de clase para acceso en onCreate y onConfigurationChanged
+    fun String.toPixelSize(): Int {
+        return if (this.endsWith("dp")) {
+            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this.removeSuffix("dp").toFloat(), resources.displayMetrics).toInt()
+        } else if (this.endsWith("sp")) {
+            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, this.removeSuffix("sp").toFloat(), resources.displayMetrics).toInt()
+        } else {
+            0
+        }
+    }
     // Manejar el cambio de configuración para aplicar las propiedades visuales correctas a los logos
     override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
         super.onConfigurationChanged(newConfig)
@@ -426,14 +437,18 @@ class MainActivity : AppCompatActivity() {
                 width = Imagenes.Vertical.LOGO_CLIENTE.width.toLayoutSize()
                 height = Imagenes.Vertical.LOGO_CLIENTE.height.toLayoutSize()
             }
-            (logo1.layoutParams as? android.widget.LinearLayout.LayoutParams)?.gravity =
-                when (Imagenes.Vertical.LOGO_CLIENTE.gravity) {
+            (logo1.layoutParams as? android.widget.LinearLayout.LayoutParams)?.apply {
+                gravity = when (Imagenes.Vertical.LOGO_CLIENTE.gravity) {
                     "center_horizontal" -> Gravity.CENTER_HORIZONTAL
                     "center" -> Gravity.CENTER
                     "start" -> Gravity.START
                     "end" -> Gravity.END
                     else -> Gravity.NO_GRAVITY
                 }
+                val marginTopPx = Imagenes.Vertical.LOGO_CLIENTE.marginTop.toPixelSize()
+                val marginBottomPx = Imagenes.Vertical.LOGO_CLIENTE.marginBottom.toPixelSize()
+                setMargins(0, marginTopPx, 0, marginBottomPx)
+            }
 
             logo2.layoutParams = logo2.layoutParams.apply {
                 width = Imagenes.Vertical.LOGO_DESARROLLADORA.width.toLayoutSize()
@@ -452,14 +467,18 @@ class MainActivity : AppCompatActivity() {
                 width = Imagenes.Horizontal.LOGO_CLIENTE.width.toLayoutSize()
                 height = Imagenes.Horizontal.LOGO_CLIENTE.height.toLayoutSize()
             }
-            (logo1.layoutParams as? android.widget.LinearLayout.LayoutParams)?.gravity =
-                when (Imagenes.Horizontal.LOGO_CLIENTE.gravity) {
+            (logo1.layoutParams as? android.widget.LinearLayout.LayoutParams)?.apply {
+                gravity = when (Imagenes.Horizontal.LOGO_CLIENTE.gravity) {
                     "center_horizontal" -> Gravity.CENTER_HORIZONTAL
                     "center" -> Gravity.CENTER
                     "start" -> Gravity.START
                     "end" -> Gravity.END
                     else -> Gravity.NO_GRAVITY
                 }
+                val marginTopPx = Imagenes.Horizontal.LOGO_CLIENTE.marginTop.toPixelSize()
+                val marginBottomPx = Imagenes.Horizontal.LOGO_CLIENTE.marginBottom.toPixelSize()
+                setMargins(0, marginTopPx, 0, marginBottomPx)
+            }
 
             logo2.layoutParams = logo2.layoutParams.apply {
                 width = Imagenes.Horizontal.LOGO_DESARROLLADORA.width.toLayoutSize()
