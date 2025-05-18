@@ -71,6 +71,19 @@ class MainActivity : AppCompatActivity() {
             or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
             or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
         )
+        // Aplicar modo inmersivo constantemente
+        window.decorView.setOnSystemUiVisibilityChangeListener { visibility ->
+            if (visibility and View.SYSTEM_UI_FLAG_FULLSCREEN == 0) {
+                window.decorView.systemUiVisibility = (
+                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                    or View.SYSTEM_UI_FLAG_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                )
+            }
+        }
 
         window.setFlags(
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -278,8 +291,12 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
-    // Enviar al launcher principal del dispositivo
+    // Enviar al launcher principal del dispositivo y salir del modo kiosco si está activo
     private fun salirAlLauncher() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            stopLockTask()
+        }
+
         val intent = android.content.Intent(android.content.Intent.ACTION_MAIN)
         intent.addCategory(android.content.Intent.CATEGORY_HOME)
         intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
@@ -437,6 +454,21 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
+    // Mantener el modo inmersivo al cambiar el foco de la ventana
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) {
+            window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                or View.SYSTEM_UI_FLAG_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+            )
+        }
+    }
+
     // Función de extensión movida al nivel de clase para acceso en onCreate y onConfigurationChanged
     fun String.toPixelSize(): Int {
         return if (this.endsWith("dp")) {
@@ -542,6 +574,7 @@ data class RespuestaFichaje(
         val db = FichajesSQLiteHelper(context).readableDatabase
         val cursor = db.rawQuery("SELECT * FROM l_informados", null)
 
+        Log.d("DB_DUMP", "---- Comprobando registros en l_informados ----")
         if (cursor.count == 0) {
             Log.d("DB_DUMP", "No hay registros en la tabla 'l_informados'")
         } else {
@@ -554,6 +587,7 @@ data class RespuestaFichaje(
                 val hFichaje = cursor.getString(cursor.getColumnIndexOrThrow("hFichaje"))
                 val lInformado = cursor.getString(cursor.getColumnIndexOrThrow("L_INFORMADO"))
 
+                // Este log muestra todos los campos de la tabla 'l_informados', útil para depuración completa del estado actual de fichajes almacenados
                 Log.d("DB_DUMP", "id=$id | cEmpCppExt=$cEmpCppExt | xFichaje=$xFichaje | cTipFic=$cTipFic | fFichaje=$fFichaje | hFichaje=$hFichaje | L_INFORMADO=$lInformado")
             }
         }
