@@ -1,14 +1,17 @@
 
 package com.example.relojfichajeskairos24h
 
-import android.view.WindowManager
+import android.content.res.Configuration
+import android.text.InputType
 
 import android.app.ActivityManager
 
 import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
 import android.content.Context
 import android.media.MediaPlayer
 import android.net.ConnectivityManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -27,9 +30,6 @@ import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 // Actividad principal de la aplicación de fichaje Kairos24h
 class MainActivity : AppCompatActivity() {
@@ -58,65 +58,54 @@ class MainActivity : AppCompatActivity() {
         val COLOR_CORRECTO = "#4F8ABA".toColorInt()
     }
 
+    @SuppressLint("ClickableViewAccessibility", "DiscouragedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.portada)
 
         // Ocultar barra de navegación y de estado (modo inmersivo)
-        window.decorView.systemUiVisibility = (
-            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-            or View.SYSTEM_UI_FLAG_FULLSCREEN
-            or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-            or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-            or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-        )
-        // Aplicar modo inmersivo constantemente
-        window.decorView.setOnSystemUiVisibilityChangeListener { visibility ->
-            if (visibility and View.SYSTEM_UI_FLAG_FULLSCREEN == 0) {
-                window.decorView.systemUiVisibility = (
-                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                    or View.SYSTEM_UI_FLAG_FULLSCREEN
-                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.insetsController?.let { controller ->
+                controller.hide(android.view.WindowInsets.Type.systemBars())
+                controller.systemBarsBehavior = android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             }
+        } else {
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                or View.SYSTEM_UI_FLAG_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+            )
         }
-
-        window.setFlags(
-            WindowManager.LayoutParams.FLAG_FULLSCREEN,
-            WindowManager.LayoutParams.FLAG_FULLSCREEN
-        )
 
 
         // Revisar si debe iniciar en modo kiosco tras reinicio
-        val preferencias = getSharedPreferences("prefs_kiosco", Context.MODE_PRIVATE)
+        val preferencias = getSharedPreferences("prefs_kiosco", MODE_PRIVATE)
         val modoKioscoActivo = preferencias.getBoolean("activar_kiosco", false)
-        if (modoKioscoActivo && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        if (modoKioscoActivo) {
+            val activityManager = getSystemService(ACTIVITY_SERVICE) as ActivityManager
             if (activityManager.lockTaskModeState == ActivityManager.LOCK_TASK_MODE_NONE) {
+                @Suppress("DEPRECATION")
                 startLockTask()
                 Log.d("MainActivity", "Modo kiosco iniciado tras reinicio.")
             }
         }
 
-        // Cargar imagen desde el objeto Imagenes
+        // Cargar imagenes dinámicamente usando los nombres definidos en Imagenes
         val logo1 = findViewById<android.widget.ImageView>(R.id.logo1)
-        val resourceName = Imagenes.LOGO_CLIENTE
-        val resId = resources.getIdentifier(resourceName, "drawable", packageName)
-        logo1.setImageResource(resId)
+        val logo1ResId = resources.getIdentifier(Imagenes.LOGO_CLIENTE, "drawable", packageName)
+        logo1.setImageResource(logo1ResId)
 
-        // Cargar imagen para logo2
         val logo2 = findViewById<android.widget.ImageView>(R.id.logo2)
-        val resourceName2 = Imagenes.LOGO_DESARROLLADORA
-        val resId2 = resources.getIdentifier(resourceName2, "drawable", packageName)
-        logo2.setImageResource(resId2)
+        val logo2ResId = resources.getIdentifier(Imagenes.LOGO_DESARROLLADORA, "drawable", packageName)
+        logo2.setImageResource(logo2ResId)
 
 
         // Permitir cambiar entre propiedades verticales y horizontales de los logos
-        val usarVertical = resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT
+        val usarVertical = resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
 
         fun String.toLayoutSize(): Int = when (this) {
             "wrap_content" -> android.view.ViewGroup.LayoutParams.WRAP_CONTENT
@@ -232,8 +221,22 @@ class MainActivity : AppCompatActivity() {
             resetearInactividad()
         }
 
-        // Detectar pulsación larga para salir de la app desde el logo
-        val zonaSuperior = findViewById<View>(R.id.logo1)
+        // Detectar pulsación larga para salir de la app desde el logo (accesible y cumple con performClick)
+        val zonaSuperior = object : androidx.appcompat.widget.AppCompatImageView(this) {
+            override fun performClick(): Boolean {
+                super.performClick()
+                return true
+            }
+        }.apply {
+            layoutParams = logo1.layoutParams
+            setImageDrawable(logo1.drawable)
+            id = logo1.id
+        }
+        (logo1.parent as? android.view.ViewGroup)?.apply {
+            val index = indexOfChild(logo1)
+            removeView(logo1)
+            addView(zonaSuperior, index)
+        }
         zonaSuperior.setOnTouchListener(object : View.OnTouchListener {
             private var handler = Handler(Looper.getMainLooper())
             private val longPressRunnable = Runnable {
@@ -243,11 +246,18 @@ class MainActivity : AppCompatActivity() {
             override fun onTouch(v: View?, event: android.view.MotionEvent?): Boolean {
                 when (event?.action) {
                     android.view.MotionEvent.ACTION_DOWN -> handler.postDelayed(longPressRunnable, 6000)
-                    android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_CANCEL -> handler.removeCallbacks(longPressRunnable)
+                    android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_CANCEL -> {
+                        handler.removeCallbacks(longPressRunnable)
+                        v?.performClick()
+                    }
                 }
                 return true
             }
         })
+
+        zonaSuperior.setOnClickListener {
+            // Acción vacía, necesaria para accesibilidad y cumplimiento de performClick()
+        }
 
         // Activar temporizador de limpieza de inactividad
         resetearInactividad()
@@ -270,7 +280,7 @@ class MainActivity : AppCompatActivity() {
     // Solicitar PIN para confirmar salida de la app
     private fun solicitarPinParaSalir() {
         val input = EditText(this)
-        input.inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_PASSWORD
+        input.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_PASSWORD
 
         androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle("Introduce el PIN")
@@ -293,9 +303,7 @@ class MainActivity : AppCompatActivity() {
 
     // Enviar al launcher principal del dispositivo y salir del modo kiosco si está activo
     private fun salirAlLauncher() {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            stopLockTask()
-        }
+        stopLockTask()
 
         val intent = android.content.Intent(android.content.Intent.ACTION_MAIN)
         intent.addCategory(android.content.Intent.CATEGORY_HOME)
@@ -338,14 +346,10 @@ class MainActivity : AppCompatActivity() {
     // Comprobar si hay conexión a internet activa
     @Suppress("DEPRECATION")
     private fun hayConexionInternet(): Boolean {
-        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val connectivityManager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkInfo = connectivityManager.activeNetworkInfo
         return networkInfo != null && networkInfo.isConnected
     }
-
-    // Obtener la hora actual del sistema
-    private fun obtenerHoraActual(): String =
-        SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
 
     // Animar visualmente el botón pulsado
     private fun animarBoton(button: Button) {
@@ -436,6 +440,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Reproduce un archivo de audio si existe
+    @Suppress("DiscouragedApi")
     private fun reproducirAudio(nombreArchivo: String) {
         val resId = resources.getIdentifier(nombreArchivo, "raw", packageName)
         if (resId != 0) {
@@ -458,14 +463,22 @@ class MainActivity : AppCompatActivity() {
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         if (hasFocus) {
-            window.decorView.systemUiVisibility = (
-                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                or View.SYSTEM_UI_FLAG_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-            )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                window.insetsController?.let { controller ->
+                    controller.hide(android.view.WindowInsets.Type.systemBars())
+                    controller.systemBarsBehavior = android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                }
+            } else {
+                @Suppress("DEPRECATION")
+                window.decorView.systemUiVisibility = (
+                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                    or View.SYSTEM_UI_FLAG_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                )
+            }
         }
     }
 
@@ -480,10 +493,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
     // Manejar el cambio de configuración para aplicar las propiedades visuales correctas a los logos
-    override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
+    override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
 
-        val usarVertical = newConfig.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT
+        val usarVertical = newConfig.orientation == Configuration.ORIENTATION_PORTRAIT
 
         val logo1 = findViewById<android.widget.ImageView>(R.id.logo1)
         val logo2 = findViewById<android.widget.ImageView>(R.id.logo2)
@@ -560,6 +573,33 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
+// Muestra todos los registros actuales de la tabla 'l_informados' en Logcat
+fun mostrarContenidoDeBaseDeDatos(context: Context) {
+    val db = FichajesSQLiteHelper(context).readableDatabase
+    val cursor = db.rawQuery("SELECT * FROM l_informados", null)
+
+    Log.d("DB_DUMP", "---- Comprobando registros en l_informados ----")
+    if (cursor.count == 0) {
+        Log.d("DB_DUMP", "No hay registros en la tabla 'l_informados'")
+    } else {
+        while (cursor.moveToNext()) {
+            val id = cursor.getInt(cursor.getColumnIndexOrThrow("id"))
+            val cEmpCppExt = cursor.getString(cursor.getColumnIndexOrThrow("cEmpCppExt"))
+            val xFichaje = cursor.getString(cursor.getColumnIndexOrThrow("xFichaje"))
+            val cTipFic = cursor.getString(cursor.getColumnIndexOrThrow("cTipFic"))
+            val fFichaje = cursor.getString(cursor.getColumnIndexOrThrow("fFichaje"))
+            val hFichaje = cursor.getString(cursor.getColumnIndexOrThrow("hFichaje"))
+            val lInformado = cursor.getString(cursor.getColumnIndexOrThrow("L_INFORMADO"))
+
+            // Este log muestra todos los campos de la tabla 'l_informados', útil para depuración completa del estado actual de fichajes almacenados
+            Log.d("DB_DUMP", "id=$id | cEmpCppExt=$cEmpCppExt | xFichaje=$xFichaje | cTipFic=$cTipFic | fFichaje=$fFichaje | hFichaje=$hFichaje | L_INFORMADO=$lInformado")
+        }
+    }
+
+    cursor.close()
+}
+
+
 // Modelo de datos para interpretar la respuesta del servidor al fichar
 data class RespuestaFichaje(
     val code: Int,
@@ -569,28 +609,3 @@ data class RespuestaFichaje(
     val fFichaje: String?,
     val hFichaje: String?
 )
-    // Muestra todos los registros actuales de la tabla 'l_informados' en Logcat
-    fun mostrarContenidoDeBaseDeDatos(context: Context) {
-        val db = FichajesSQLiteHelper(context).readableDatabase
-        val cursor = db.rawQuery("SELECT * FROM l_informados", null)
-
-        Log.d("DB_DUMP", "---- Comprobando registros en l_informados ----")
-        if (cursor.count == 0) {
-            Log.d("DB_DUMP", "No hay registros en la tabla 'l_informados'")
-        } else {
-            while (cursor.moveToNext()) {
-                val id = cursor.getInt(cursor.getColumnIndexOrThrow("id"))
-                val cEmpCppExt = cursor.getString(cursor.getColumnIndexOrThrow("cEmpCppExt"))
-                val xFichaje = cursor.getString(cursor.getColumnIndexOrThrow("xFichaje"))
-                val cTipFic = cursor.getString(cursor.getColumnIndexOrThrow("cTipFic"))
-                val fFichaje = cursor.getString(cursor.getColumnIndexOrThrow("fFichaje"))
-                val hFichaje = cursor.getString(cursor.getColumnIndexOrThrow("hFichaje"))
-                val lInformado = cursor.getString(cursor.getColumnIndexOrThrow("L_INFORMADO"))
-
-                // Este log muestra todos los campos de la tabla 'l_informados', útil para depuración completa del estado actual de fichajes almacenados
-                Log.d("DB_DUMP", "id=$id | cEmpCppExt=$cEmpCppExt | xFichaje=$xFichaje | cTipFic=$cTipFic | fFichaje=$fFichaje | hFichaje=$hFichaje | L_INFORMADO=$lInformado")
-            }
-        }
-
-        cursor.close()
-    }

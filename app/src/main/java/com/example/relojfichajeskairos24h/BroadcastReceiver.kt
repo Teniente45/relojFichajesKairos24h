@@ -4,7 +4,6 @@ import android.app.ActivityManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.util.Log
 
 // Este BroadcastReceiver se activa al reiniciar el dispositivo.
@@ -18,12 +17,10 @@ class BootBroadcastReceiver : BroadcastReceiver() {
             }
             context.startActivity(launchIntent)
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-                if (activityManager.lockTaskModeState == ActivityManager.LOCK_TASK_MODE_NONE) {
-                    // No se puede activar directamente el modo quiosco aquí porque no tenemos una Activity activa.
-                    Log.d("BootReceiver", "Modo quiosco pendiente de activar desde MainActivity.")
-                }
+            val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+            if (activityManager.lockTaskModeState == ActivityManager.LOCK_TASK_MODE_NONE) {
+                // No se puede activar directamente el modo quiosco aquí porque no tenemos una Activity activa.
+                Log.d("BootReceiver", "Modo quiosco pendiente de activar desde MainActivity.")
             }
         }
     }

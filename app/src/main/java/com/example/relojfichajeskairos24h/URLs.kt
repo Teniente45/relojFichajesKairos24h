@@ -44,7 +44,7 @@ object Imagenes {
     object Vertical {
         val LOGO_CLIENTE = PropiedadesImagen(
             width = "match_parent",
-            height = "wrap_content",
+            height = "200dp",
             gravity = "center_horizontal",
             marginTop = "10sp",
             marginBottom = "10sp"
@@ -54,12 +54,18 @@ object Imagenes {
 
     object Horizontal {
         val LOGO_CLIENTE = PropiedadesImagen(
-            width = "match_parent",
-            height = "wrap_content",
+            width = "wrap_content",
+            height = "200dp",
             gravity = "center_horizontal",
-            marginTop = "10sp",
-            marginBottom = "10sp"
+            marginTop = "8dp",
+            marginBottom = "8dp"
         )
-        val LOGO_DESARROLLADORA = PropiedadesImagen("match_parent", "wrap_content", "center_horizontal")
+        val LOGO_DESARROLLADORA = PropiedadesImagen(
+            width = "wrap_content",
+            height = "80dp",
+            gravity = "center_horizontal",
+            marginTop = "4dp",
+            marginBottom = "4dp"
+        )
     }
 }

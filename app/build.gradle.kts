@@ -11,6 +11,7 @@ android {
     defaultConfig {
         applicationId = "com.example.relojfichajeskairos24h"
         minSdk = 25 // Actualiza esto a 28 o superior
+        //noinspection OldTargetApi
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -61,13 +62,17 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    //noinspection UseTomlInstead
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     // Para el Inspector de bases de datos
+    //noinspection KtxExtensionAvailable,UseTomlInstead,GradleDependency
     implementation ("androidx.sqlite:sqlite:2.1.0")
 
+    //noinspection UseTomlInstead,GradleDependency
     implementation ("com.google.code.gson:gson:2.8.8")
 
     // Implementación que se encarga de que el contenido sea responsive
-    implementation ("androidx.constraintlayout:constraintlayout:2.1.4")
+    //noinspection UseTomlInstead
+    implementation ("androidx.constraintlayout:constraintlayout:2.2.1")
 }

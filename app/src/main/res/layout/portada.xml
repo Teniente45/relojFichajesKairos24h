@@ -25,13 +25,14 @@
             <!-- Estas propiedades serán sobreescritas en tiempo de ejecución desde Kotlin -->
             <ImageView
                 android:id="@+id/logo1"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:contentDescription="@string/descripcion_logo"
                 android:tag="LOGO_CLIENTE"
                 android:adjustViewBounds="true"
-                android:maxHeight="100dp" />
+                android:maxHeight="100dp"
+                android:scaleType="fitCenter" />
         </LinearLayout>
 
         <LinearLayout
@@ -362,13 +363,14 @@
 
             <ImageView
                 android:id="@+id/logo2"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:contentDescription="@string/descripcion_empColaboradora"
                 android:tag="LOGO_DESARROLLADORA"
                 android:adjustViewBounds="true"
-                android:maxHeight="100dp" />
+                android:maxHeight="100dp"
+                android:scaleType="fitCenter" />
         </LinearLayout>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
