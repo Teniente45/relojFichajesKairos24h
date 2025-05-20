@@ -55,7 +55,7 @@ object Imagenes {
     object Horizontal {
         val LOGO_CLIENTE = PropiedadesImagen(
             width = "wrap_content",
-            height = "200dp",
+            height = "170dp",
             gravity = "center_horizontal",
             marginTop = "8dp",
             marginBottom = "8dp"
