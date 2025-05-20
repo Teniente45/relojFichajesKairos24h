@@ -1,11 +1,8 @@
-
 package com.example.relojfichajeskairos24h
 
 import android.content.res.Configuration
 import android.text.InputType
-
 import android.app.ActivityManager
-
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
@@ -25,6 +22,7 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.toColorInt
+import com.example.relojfichajeskairos24hprueba.R
 import com.google.gson.Gson
 import org.json.JSONObject
 import java.net.HttpURLConnection

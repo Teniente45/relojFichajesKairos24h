@@ -1,15 +1,15 @@
 package com.example.relojfichajeskairos24h
 
 object BuildURL {
-    const val HOST = "https://rincontragabuche.kairos24h.es/"
+    const val HOST = "https://sermanten.kairos24h.es/"
     const val ACTION = "index.php?r=wsExterno/crearFichajeExterno"
     const val PARAMS = "&xEntidad=1005" +
                         "&cKiosko=TABLET1" +
                         "&cEmpCppExt=" +
                         "&cTipFic=" +
-                        "&cFicOri=APP"
-                       // "&tGPSLat=" +
-                       // "&tGPSLon="
+                        "&cFicOri=APP" +
+                        "&tGPSLat=" +
+                        "&tGPSLon="
 
     const val SETFICHAJE = HOST + ACTION + PARAMS
 }
@@ -32,7 +32,7 @@ object BuildURL {
  */
 object Imagenes {
     // Nombres de recursos en drawable
-    const val LOGO_CLIENTE = "logo_tragabuche"
+    const val LOGO_CLIENTE = "sermanten"
     const val LOGO_DESARROLLADORA = "logo_desarrolladora"
 
     data class PropiedadesImagen(

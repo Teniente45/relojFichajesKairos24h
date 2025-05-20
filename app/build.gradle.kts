@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.relojfichajeskairos24h"
+    namespace = "com.example.relojfichajeskairos24hprueba"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.relojfichajeskairos24h"
+        applicationId = "com.example.relojfichajeskairos24hprueba"
         minSdk = 25 // Actualiza esto a 28 o superior
         //noinspection OldTargetApi
         targetSdk = 34
