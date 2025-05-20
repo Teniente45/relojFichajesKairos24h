@@ -63,6 +63,20 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.portada)
 
+        // Registrar este paquete como autorizado para Lock Task (modo quiosco)
+        val devicePolicyManager = getSystemService(DEVICE_POLICY_SERVICE) as android.app.admin.DevicePolicyManager
+        val componentName = android.content.ComponentName(this, MyDeviceAdminReceiver::class.java)
+
+        if (devicePolicyManager.isDeviceOwnerApp(packageName)) {
+            devicePolicyManager.setLockTaskPackages(componentName, arrayOf(packageName))
+        }
+
+        // Iniciar Lock Task si está permitido por DevicePolicyManager
+        if (devicePolicyManager.isLockTaskPermitted(packageName)) {
+            startLockTask()
+            Log.d("MainActivity", "Modo quiosco activado correctamente.")
+        }
+
         // Ocultar barra de navegación y de estado (modo inmersivo)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.insetsController?.let { controller ->
