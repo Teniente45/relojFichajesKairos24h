@@ -22,7 +22,6 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.toColorInt
-import com.example.relojfichajeskairos24hprueba.R
 import com.google.gson.Gson
 import org.json.JSONObject
 import java.net.HttpURLConnection
@@ -342,17 +341,22 @@ class MainActivity : AppCompatActivity() {
     private fun manejarCodigoEntradaSalida(codigo: String, tipo: String) {
         codigo.toIntOrNull()?.let {
             if (hayConexionInternet()) {
-                // Construir URL para el fichaje
+                // Obtener coordenadas GPS para el fichaje
+                val latitud = GPSUtils.obtenerLatitud(this)
+                val longitud = GPSUtils.obtenerLongitud(this)
+                // Añadir coordenadas GPS a la URL del fichaje
                 val url = BuildURL.SETFICHAJE
                     .replace("cEmpCppExt=", "cEmpCppExt=${URLEncoder.encode(it.toString(), "UTF-8")}")
                     .replace("cTipFic=", "cTipFic=${URLEncoder.encode(tipo, "UTF-8")}")
+                    .plus("&tGpsLat=${URLEncoder.encode(latitud.toString(), "UTF-8")}")
+                    .plus("&tGpsLon=${URLEncoder.encode(longitud.toString(), "UTF-8")}")
                 Log.d("FichajeApp", "URL generada para fichaje: $url")
                 enviarFichajeAServidor(url)
             } else {
                 mostrarMensajeDinamico("No estás conectado a Internet", COLOR_INCORRECTO, "no_internet")
                 Log.d("FichajeApp", "No hay conexión. Fichaje guardado localmente.")
             }
-        } ?: mostrarMensajeDinamico("Código no válido", COLOR_INCORRECTO)
+        } ?: mostrarMensajeDinamico("Código incorrecto", COLOR_INCORRECTO)
     }
 
     // Comprobar si hay conexión a internet activa
@@ -422,8 +426,10 @@ class MainActivity : AppCompatActivity() {
                         val esFichajeCorrecto = respuesta.message.isNullOrBlank()
                         val tipo = respuesta.cTipFic?.uppercase()
 
+                        // Extraer el nombre del empleado para incluirlo en el mensaje de confirmación
+                        val sEmpleado = jsonResponse.optString("sEmpleado", "Empleado")
                         val mensajeVisual = if (esFichajeCorrecto)
-                            "($codigoEnviado) $tipo correcta a las ${respuesta.hFichaje}h"
+                            "$sEmpleado ($codigoEnviado) $tipo correcta a las ${respuesta.hFichaje}h"
                         else
                             "($codigoEnviado) Fichaje Incorrecto"
 
