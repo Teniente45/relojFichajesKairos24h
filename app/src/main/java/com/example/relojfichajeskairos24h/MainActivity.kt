@@ -114,11 +114,6 @@ class MainActivity : AppCompatActivity() {
         val logo2ResId = resources.getIdentifier(Imagenes.LOGO_DESARROLLADORA, "drawable", packageName)
         logo2.setImageResource(logo2ResId)
 
-        val logo3 = findViewById<android.widget.ImageView>(R.id.logo3)
-        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE && logo3 != null) {
-            val logo3ResId = resources.getIdentifier(Imagenes.LOGO_DESARROLLADORA_HORIZONTAL, "drawable", packageName)
-            logo3.setImageResource(logo3ResId)
-        }
 
         // Permitir cambiar entre propiedades verticales y horizontales de los logos
         val usarVertical = resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
@@ -192,24 +187,6 @@ class MainActivity : AppCompatActivity() {
                     "end" -> Gravity.END
                     else -> Gravity.NO_GRAVITY
                 }
-
-            // Configuración de logo3 en orientación horizontal
-            logo3.layoutParams = logo3.layoutParams.apply {
-                width = Imagenes.Horizontal.LOGO_DESARROLLADORA_HORIZONTAL.width.toLayoutSize()
-                height = Imagenes.Horizontal.LOGO_DESARROLLADORA_HORIZONTAL.height.toLayoutSize()
-            }
-            (logo3.layoutParams as? android.widget.LinearLayout.LayoutParams)?.apply {
-                gravity = when (Imagenes.Horizontal.LOGO_DESARROLLADORA_HORIZONTAL.gravity) {
-                    "center_horizontal" -> Gravity.CENTER_HORIZONTAL
-                    "center" -> Gravity.CENTER
-                    "start" -> Gravity.START
-                    "end" -> Gravity.END
-                    else -> Gravity.NO_GRAVITY
-                }
-                val marginTopPx = Imagenes.Horizontal.LOGO_DESARROLLADORA_HORIZONTAL.marginTop.toPixelSize()
-                val marginBottomPx = Imagenes.Horizontal.LOGO_DESARROLLADORA_HORIZONTAL.marginBottom.toPixelSize()
-                setMargins(0, marginTopPx, 0, marginBottomPx)
-            }
         }
 
         // Inicialización de vistas y botones
@@ -346,11 +323,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Mostrar mensaje animado en la interfaz con texto, color y audio
+    @SuppressLint("ClickableViewAccessibility")
     private fun mostrarMensajeDinamico(texto: String, color: Int, nombreAudio: String? = null) {
         mensajeDinamico.text = texto
         mensajeDinamico.setTextColor(color)
         mensajeDinamico.textSize = 25f
         mensajeDinamico.visibility = View.VISIBLE
+        mensajeDinamico.setOnTouchListener { v, _ ->
+            v.visibility = View.GONE
+            handler.removeCallbacksAndMessages(null)
+            true
+        }
 
         nombreAudio?.let { reproducirAudio(it) }
 

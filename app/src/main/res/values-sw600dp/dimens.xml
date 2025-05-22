@@ -7,5 +7,5 @@
     <dimen name="layoutMarginButtonsNumericos">30dp</dimen>
     <dimen name="layoutMarginButtonsNumericosHorizontal">16dp</dimen>
     <dimen name="layoutHeightLogo">70dp</dimen>
-    <dimen name="layoutWidthBttNumerico">1dp</dimen>
+    <dimen name="layoutWidthBttNumerico">5dp</dimen>
 </resources>

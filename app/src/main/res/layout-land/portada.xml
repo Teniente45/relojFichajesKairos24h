@@ -19,32 +19,21 @@
             android:id="@+id/containerLogo1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:orientation="horizontal"
             android:padding="0dp">
 
-            <!-- Estas propiedades serán sobreescritas en tiempo de ejecución desde Kotlin -->
             <ImageView
                 android:id="@+id/logo1"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:layout_gravity="bottom|left"
                 android:contentDescription="@string/descripcion_logo"
                 android:tag="LOGO_CLIENTE"
                 android:adjustViewBounds="true"
                 android:maxHeight="100dp"
-                android:scaleType="fitCenter" />
-
-            <ImageView
-                android:id="@+id/logo3"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:layout_gravity="center"
-                android:tag="LOGO_DESARROLLADORA_HORIZONTAL"
-                android:adjustViewBounds="true"
-                android:maxHeight="100dp"
                 android:scaleType="fitCenter"
-                tools:ignore="ContentDescription" />
+                tools:ignore="RtlHardcoded" />
         </LinearLayout>
 
         <LinearLayout
@@ -78,7 +67,7 @@
                     app:autoSizeMinTextSize="12sp"
                     app:autoSizeStepGranularity="2sp"
                     app:autoSizeTextType="uniform"
-                    tools:ignore="TextContrastCheck" />
+                    tools:ignore="TextContrastCheck,VisualLintButtonSize" />
             </LinearLayout>
 
             <!-- Botón de Salida - A la Derecha -->
@@ -102,7 +91,7 @@
                     app:autoSizeMinTextSize="12sp"
                     app:autoSizeStepGranularity="2sp"
                     app:autoSizeTextType="uniform"
-                    tools:ignore="TextContrastCheck" />
+                    tools:ignore="TextContrastCheck,VisualLintButtonSize" />
             </LinearLayout>
         </LinearLayout>
 
@@ -135,7 +124,7 @@
                 app:autoSizeMinTextSize="12sp"
                 app:autoSizeStepGranularity="2sp"
                 app:autoSizeTextType="uniform"
-                tools:ignore="TextContrastCheck" />
+                tools:ignore="TextContrastCheck,VisualLintTextFieldSize" />
 
             <TextView
                 android:id="@+id/mensajeDinamico"
@@ -179,7 +168,7 @@
                     android:text="@string/btn_1"
                     android:textColor="@android:color/white"
                     android:textSize="@dimen/buttonNumerico"
-                    tools:ignore="SpUsage" />
+                    tools:ignore="SpUsage,VisualLintButtonSize" />
 
                 <Button
                     android:id="@+id/btn2"
@@ -199,7 +188,7 @@
                     android:text="@string/btn_2"
                     android:textColor="@android:color/white"
                     android:textSize="@dimen/buttonNumerico"
-                    tools:ignore="SpUsage" />
+                    tools:ignore="SpUsage,VisualLintButtonSize" />
 
                 <Button
                     android:id="@+id/btn3"
@@ -218,7 +207,7 @@
                     android:text="@string/btn_3"
                     android:textColor="@android:color/white"
                     android:textSize="@dimen/buttonNumerico"
-                    tools:ignore="SpUsage" />
+                    tools:ignore="SpUsage,VisualLintButtonSize" />
 
                 <Button
                     android:id="@+id/btn4"
@@ -238,7 +227,7 @@
                     android:text="@string/btn_4"
                     android:textColor="@android:color/white"
                     android:textSize="@dimen/buttonNumerico"
-                    tools:ignore="SpUsage" />
+                    tools:ignore="SpUsage,VisualLintButtonSize" />
 
                 <Button
                     android:id="@+id/btn5"
@@ -259,7 +248,7 @@
                     android:text="@string/btn_5"
                     android:textColor="@android:color/white"
                     android:textSize="@dimen/buttonNumerico"
-                    tools:ignore="SpUsage" />
+                    tools:ignore="SpUsage,VisualLintButtonSize" />
 
                 <Button
                     android:id="@+id/btn6"
@@ -279,7 +268,7 @@
                     android:text="@string/btn_6"
                     android:textColor="@android:color/white"
                     android:textSize="@dimen/buttonNumerico"
-                    tools:ignore="SpUsage" />
+                    tools:ignore="SpUsage,VisualLintButtonSize" />
 
                 <Button
                     android:id="@+id/btn7"
@@ -299,7 +288,7 @@
                     android:text="@string/btn_7"
                     android:textColor="@android:color/white"
                     android:textSize="@dimen/buttonNumerico"
-                    tools:ignore="SpUsage" />
+                    tools:ignore="SpUsage,VisualLintButtonSize" />
 
                 <Button
                     android:id="@+id/btn8"
@@ -320,7 +309,7 @@
                     android:text="@string/btn_8"
                     android:textColor="@android:color/white"
                     android:textSize="@dimen/buttonNumerico"
-                    tools:ignore="SpUsage" />
+                    tools:ignore="SpUsage,VisualLintButtonSize" />
 
                 <Button
                     android:id="@+id/btn9"
@@ -340,7 +329,7 @@
                     android:text="@string/btn_9"
                     android:textColor="@android:color/white"
                     android:textSize="@dimen/buttonNumerico"
-                    tools:ignore="SpUsage" />
+                    tools:ignore="SpUsage,VisualLintButtonSize" />
 
                 <Button
                     android:id="@+id/btn0"
@@ -359,7 +348,7 @@
                     android:text="@string/btn_0"
                     android:textColor="@android:color/white"
                     android:textSize="@dimen/buttonNumerico"
-                    tools:ignore="SpUsage" />
+                    tools:ignore="SpUsage,VisualLintButtonSize" />
 
                 <!-- Botón "Borrar" (no redondo) -->
                 <!-- Cambiado a sp para texto -->
@@ -381,7 +370,7 @@
                     app:autoSizeMinTextSize="12sp"
                     app:autoSizeMaxTextSize="60sp"
                     app:autoSizeStepGranularity="2sp"
-                    tools:ignore="SpUsage" />
+                    tools:ignore="SpUsage,VisualLintButtonSize" />
             </GridLayout>
 
         </LinearLayout>

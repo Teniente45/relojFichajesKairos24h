@@ -1,7 +1,7 @@
 package com.example.relojfichajeskairos24h
 
 object BuildURL {
-    const val HOST = "https://demosetfichaje.kairos24h.es/"
+    const val HOST = "https://setfichaje.kairos24h.es/"
     const val ACTION = "index.php?r=citaRedWeb/crearFichajeExterno"
     const val PARAMS = "&xEntidad=1002" +
                         "&cKiosko=TABLET1" +
@@ -33,7 +33,6 @@ object BuildURL {
 object Imagenes {
     // Nombres de recursos en drawable
     const val LOGO_CLIENTE = "tragabuche"
-    const val LOGO_DESARROLLADORA_HORIZONTAL = "logo_desarrolladora"
     const val LOGO_DESARROLLADORA = "logo_desarrolladora"
 
     data class PropiedadesImagen(
@@ -58,22 +57,15 @@ object Imagenes {
     object Horizontal {
         val LOGO_CLIENTE = PropiedadesImagen(
             width = "wrap_content",
-            height = "170dp",
-            gravity = "left",
+            height = "150dp",
+            gravity = "center_horizontal",
             marginTop = "8dp",
             marginBottom = "8dp"
         )
         val LOGO_DESARROLLADORA = PropiedadesImagen(
             width = "wrap_content",
-            height = "1dp",
-            gravity = "right",
-            marginTop = "4dp",
-            marginBottom = "4dp"
-        )
-        val LOGO_DESARROLLADORA_HORIZONTAL = PropiedadesImagen(
-            width = "wrap_content",
-            height = "170dp",
-            gravity = "right",
+            height = "70dp",
+            gravity = "center_horizontal",
             marginTop = "4dp",
             marginBottom = "4dp"
         )
