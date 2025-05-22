@@ -114,6 +114,11 @@ class MainActivity : AppCompatActivity() {
         val logo2ResId = resources.getIdentifier(Imagenes.LOGO_DESARROLLADORA, "drawable", packageName)
         logo2.setImageResource(logo2ResId)
 
+        val logo3 = findViewById<android.widget.ImageView>(R.id.logo3)
+        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE && logo3 != null) {
+            val logo3ResId = resources.getIdentifier(Imagenes.LOGO_DESARROLLADORA_HORIZONTAL, "drawable", packageName)
+            logo3.setImageResource(logo3ResId)
+        }
 
         // Permitir cambiar entre propiedades verticales y horizontales de los logos
         val usarVertical = resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
@@ -187,6 +192,24 @@ class MainActivity : AppCompatActivity() {
                     "end" -> Gravity.END
                     else -> Gravity.NO_GRAVITY
                 }
+
+            // Configuración de logo3 en orientación horizontal
+            logo3.layoutParams = logo3.layoutParams.apply {
+                width = Imagenes.Horizontal.LOGO_DESARROLLADORA_HORIZONTAL.width.toLayoutSize()
+                height = Imagenes.Horizontal.LOGO_DESARROLLADORA_HORIZONTAL.height.toLayoutSize()
+            }
+            (logo3.layoutParams as? android.widget.LinearLayout.LayoutParams)?.apply {
+                gravity = when (Imagenes.Horizontal.LOGO_DESARROLLADORA_HORIZONTAL.gravity) {
+                    "center_horizontal" -> Gravity.CENTER_HORIZONTAL
+                    "center" -> Gravity.CENTER
+                    "start" -> Gravity.START
+                    "end" -> Gravity.END
+                    else -> Gravity.NO_GRAVITY
+                }
+                val marginTopPx = Imagenes.Horizontal.LOGO_DESARROLLADORA_HORIZONTAL.marginTop.toPixelSize()
+                val marginBottomPx = Imagenes.Horizontal.LOGO_DESARROLLADORA_HORIZONTAL.marginBottom.toPixelSize()
+                setMargins(0, marginTopPx, 0, marginBottomPx)
+            }
         }
 
         // Inicialización de vistas y botones
@@ -341,6 +364,13 @@ class MainActivity : AppCompatActivity() {
     private fun manejarCodigoEntradaSalida(codigo: String, tipo: String) {
         codigo.toIntOrNull()?.let {
             if (hayConexionInternet()) {
+                // Verificar si el GPS está activado antes de intentar fichar
+                // IMPORTANTE GPS
+                val locationManager = getSystemService(LOCATION_SERVICE) as android.location.LocationManager
+                if (!locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)) {
+                    mostrarMensajeDinamico("Fichaje bloqueado. Encienda el GPS.", COLOR_INCORRECTO)
+                    return
+                }
                 // Obtener coordenadas GPS para el fichaje
                 val latitud = GPSUtils.obtenerLatitud(this)
                 val longitud = GPSUtils.obtenerLongitud(this)
