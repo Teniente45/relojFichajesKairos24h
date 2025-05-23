@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
     private val stringBuilder = StringBuilder()
 
     // Duración del mensaje en pantalla en milisegundos
-    private val duracionMensajeMs = 10000L
+    private val duracionMensajeMs = 6000L
 
     companion object {
         // Colores personalizados para los mensajes visuales
@@ -59,6 +59,15 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.portada)
+
+        val rootView = findViewById<View>(android.R.id.content)
+        rootView.setOnTouchListener { _, _ ->
+            if (::mensajeDinamico.isInitialized && mensajeDinamico.visibility == View.VISIBLE) {
+                mensajeDinamico.visibility = View.GONE
+                handler.removeCallbacksAndMessages(null)
+            }
+            false // permite que el resto de toques funcionen normalmente
+        }
 
         // Registrar este paquete como autorizado para Lock Task (modo quiosco)
         val devicePolicyManager = getSystemService(DEVICE_POLICY_SERVICE) as android.app.admin.DevicePolicyManager
@@ -402,7 +411,7 @@ class MainActivity : AppCompatActivity() {
         handler.removeCallbacksAndMessages(null)
         handler.postDelayed({
             borrarCampoTexto()
-        }, duracionMensajeMs)
+        }, 20000L) // 20 segundos
     }
 
     // Limpiar el campo de texto y reiniciar acumulador
@@ -442,7 +451,7 @@ class MainActivity : AppCompatActivity() {
                         // Extraer el nombre del empleado para incluirlo en el mensaje de confirmación
                         val sEmpleado = jsonResponse.optString("sEmpleado", "Empleado")
                         val mensajeVisual = if (esFichajeCorrecto)
-                            "$sEmpleado ($codigoEnviado) $tipo correcta a las ${respuesta.hFichaje}h"
+                            "($codigoEnviado) $sEmpleado $tipo a las ${respuesta.hFichaje}h"
                         else
                             "($codigoEnviado) Fichaje Incorrecto"
 
