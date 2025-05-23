@@ -3,8 +3,8 @@ package com.example.relojfichajeskairos24h
 object BuildURL {
     const val HOST = "https://setfichaje.kairos24h.es/"
     const val ACTION = "index.php?r=citaRedWeb/crearFichajeExterno"
-    const val PARAMS = "&xEntidad=1007" +
-                        "&cKiosko=TABLET1" +
+    const val PARAMS = "&xEntidad=3" +
+                        "&cKiosko=TABLET2" +
                         "&cEmpCppExt=" +
                         "&cTipFic=" +
                         "&cFicOri=APP" +
@@ -32,7 +32,7 @@ object BuildURL {
  */
 object Imagenes {
     // Nombres de recursos en drawable
-    const val LOGO_CLIENTE = "rfag"
+    const val LOGO_CLIENTE = "beimancpp"
     const val LOGO_DESARROLLADORA = "logo_desarrolladora"
 
     data class PropiedadesImagen(
