@@ -1,7 +1,7 @@
 package com.example.relojfichajeskairos24h
 
 object BuildURL {
-    const val HOST = "https://setfichaje.kairos24h.es/"
+    const val HOST = "https://beimancpp.tucitamedica.es/"
     const val ACTION = "index.php?r=citaRedWeb/crearFichajeExterno"
     const val PARAMS = "&xEntidad=3" +
                         "&cKiosko=TABLET2" +
