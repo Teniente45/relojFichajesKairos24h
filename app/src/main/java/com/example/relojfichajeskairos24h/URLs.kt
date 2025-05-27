@@ -7,7 +7,7 @@ object BuildURL {
                         "&cKiosko=TABLET1" +
                         "&cEmpCppExt=" +
                         "&cTipFic=" +
-                        "&cFicOri=APP" +
+                        "&cFicOri=PUEFIC" +
                         "&tGPSLat=" +
                         "&tGPSLon="
 
